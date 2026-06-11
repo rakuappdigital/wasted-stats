@@ -16,72 +16,154 @@
       padding: 24px 16px;
       transition: background 0.4s;
     }
-
     body.theme-neutral { background: #111; }
     body.theme-mario   { background: #0a0a0f; }
-    body.theme-hoca    { background: #d4c8a8; }
+    body.theme-hoca    { background: #c8bfa0; }
     body.theme-vintage { background: #2a1f0e; }
 
     .screen { display: none; width: 100%; max-width: 480px; animation: fadeIn 0.35s ease; }
     .screen.active { display: block; }
-    @keyframes fadeIn { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
+    @keyframes fadeIn { from{opacity:0;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
 
-    /* CRT scanlines — only for mario/intro */
     body.theme-neutral::after, body.theme-mario::after {
       content:''; position:fixed; inset:0;
-      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
       pointer-events:none; z-index:9999;
     }
 
-    /* ══ INTRO ══ */
-    .intro-box {
-      background: #0d0d12; border: 4px solid #ffd60a;
-      padding: 40px 24px 36px; text-align: center; position: relative;
+    /* ══════════════════════════════
+       INTRO — 3 styled cards
+    ══════════════════════════════ */
+    .intro-header {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 20px; color: #ffd60a; text-align: center;
+      text-shadow: 3px 3px 0 #7a6500;
+      margin-bottom: 6px; letter-spacing: 2px;
     }
-    .intro-box::before {
-      content:''; position:absolute; inset:4px;
-      border: 2px solid rgba(255,214,10,0.18); pointer-events:none;
+    .intro-tagline {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; color: #555; text-align: center;
+      letter-spacing: 3px; margin-bottom: 24px;
     }
-    .intro-title {
-      font-family: 'Press Start 2P', monospace; font-size: 26px; color: #ffd60a;
-      text-shadow: 4px 4px 0 #7a6500, 0 0 30px rgba(255,214,10,0.4);
-      line-height: 1.4; margin-bottom: 6px; letter-spacing: 2px;
-    }
-    .intro-sub { font-family: 'Press Start 2P', monospace; font-size: 7px; color: #555; letter-spacing: 3px; margin-bottom: 44px; }
-    .pixel-icon { font-size: 44px; margin-bottom: 36px; display:block; animation: bounce 1s ease-in-out infinite; }
-    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-    .mode-label { font-family: 'Press Start 2P', monospace; font-size: 7px; color: #555; letter-spacing: 3px; margin-bottom: 18px; }
-    .mode-buttons { display:flex; flex-direction:column; gap:14px; }
-    .btn-intro {
-      font-family: 'Press Start 2P', monospace; font-size: 10px; padding: 16px 12px;
-      border: none; cursor: pointer; letter-spacing: 1px; line-height: 1.6; transition: transform 0.08s;
-    }
-    .btn-intro:active { transform: translateY(3px); }
-    .btn-intro.mario-btn   { background:#e63946; color:#fff; box-shadow:0 6px 0 #8b0000; }
-    .btn-intro.mario-btn:active { box-shadow:0 3px 0 #8b0000; }
-    .btn-intro.hoca-btn    { background:#4a90d9; color:#fff; box-shadow:0 6px 0 #1a4a80; }
-    .btn-intro.hoca-btn:active { box-shadow:0 3px 0 #1a4a80; }
-    .btn-intro.vintage-btn { background:#8b5e3c; color:#f5e6c8; box-shadow:0 6px 0 #3d2010; }
-    .btn-intro.vintage-btn:active { box-shadow:0 3px 0 #3d2010; }
+    .mode-cards { display: flex; flex-direction: column; gap: 16px; }
 
+    /* Mario card */
+    .card-mario {
+      background: #0a0a0f; border: 4px solid #e63946;
+      padding: 20px 20px 18px; cursor: pointer;
+      position: relative; transition: transform 0.08s;
+    }
+    .card-mario::before {
+      content:''; position:absolute; inset:4px;
+      border: 1px solid rgba(230,57,70,0.25); pointer-events:none;
+    }
+    .card-mario:active { transform: translateY(3px); }
+    .card-mario .cm-label {
+      font-family:'Press Start 2P',monospace; font-size:6px;
+      color:#e63946; letter-spacing:3px; margin-bottom:8px;
+    }
+    .card-mario .cm-title {
+      font-family:'Press Start 2P',monospace; font-size:13px;
+      color:#fff; margin-bottom:10px; line-height:1.6;
+    }
+    .card-mario .cm-desc {
+      font-family:'Press Start 2P',monospace; font-size:6px;
+      color:#555; line-height:1.8;
+    }
+    .card-mario .cm-arrow {
+      font-family:'Press Start 2P',monospace; font-size:10px;
+      color:#e63946; float:right; margin-top:-28px;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Hoca card */
+    .card-hoca {
+      background: #faf6ed; cursor: pointer;
+      position: relative; transition: transform 0.08s;
+      padding: 20px 24px 18px 64px;
+      border: 1px solid #bbb; box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+      background-image:
+        linear-gradient(#faf6ed 24px, #c8d8f0 24px, #c8d8f0 26px, #faf6ed 26px),
+        linear-gradient(to right, transparent 56px, #e8a0a0 56px, #e8a0a0 58px, transparent 58px);
+      background-size: 100% 28px, 100% 100%;
+    }
+    .card-hoca::before {
+      content:''; position:absolute; left:18px; top:0; bottom:0; width:22px;
+      background:repeating-linear-gradient(to bottom,transparent 0,transparent 20px,#d0c8b0 20px,#d0c8b0 22px,transparent 22px,transparent 48px);
+    }
+    .card-hoca:active { transform: translateY(2px); }
+    .card-hoca .ch-label {
+      font-family:'Caveat',cursive; font-size:13px;
+      color:#c0392b; margin-bottom:4px;
+    }
+    .card-hoca .ch-title {
+      font-family:'Caveat',cursive; font-size:26px; font-weight:700;
+      color:#1a2a4a; margin-bottom:6px; line-height:1.1;
+    }
+    .card-hoca .ch-desc {
+      font-family:'Caveat',cursive; font-size:15px; color:#666; line-height:1.4;
+    }
+    .card-hoca .ch-grade {
+      position:absolute; right:16px; top:16px;
+      font-family:'Caveat',cursive; font-size:52px; font-weight:700;
+      color:#c0392b; opacity:0.15; line-height:1;
+    }
+
+    /* Vintage card */
+    .card-vintage {
+      background: #f2e8d0; cursor: pointer;
+      border: 4px double #8b6840; padding: 20px 22px 18px;
+      position: relative; transition: transform 0.08s;
+      box-shadow: 0 0 0 1px #8b6840, inset 0 0 40px rgba(139,104,64,0.12);
+    }
+    .card-vintage::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background: radial-gradient(ellipse at 0% 0%,rgba(139,100,50,0.1) 0%,transparent 50%),
+                  radial-gradient(ellipse at 100% 100%,rgba(100,70,30,0.12) 0%,transparent 50%);
+    }
+    .card-vintage:active { transform: translateY(2px); }
+    .card-vintage .cv-ornament {
+      font-size:13px; color:#8b6840; letter-spacing:6px;
+      display:block; text-align:center; margin-bottom:6px;
+    }
+    .card-vintage .cv-label {
+      font-family:'Playfair Display',serif; font-size:9px;
+      color:#8b6840; letter-spacing:5px; text-transform:uppercase;
+      text-align:center; margin-bottom:6px;
+    }
+    .card-vintage .cv-title {
+      font-family:'UnifrakturMaguntia',cursive; font-size:30px;
+      color:#2c1a00; text-align:center; margin-bottom:6px; line-height:1.1;
+    }
+    .card-vintage .cv-divider {
+      height:1px; background:#8b6840; margin:6px 0 8px;
+    }
+    .card-vintage .cv-desc {
+      font-family:'Playfair Display',serif; font-size:12px;
+      font-style:italic; color:#5c3d10; text-align:center; line-height:1.5;
+    }
+
+    /* ══════════════════════════════
+       SHARED SLIDER + FORM
+    ══════════════════════════════ */
     .mode-wrap { width:100%; }
 
-    /* ══ MARIO FORM ══ */
+    input[type="range"] { flex:1; -webkit-appearance:none; height:8px; outline:none; }
+
+    /* ── MARIO FORM ── */
     .mario-wrap .form-box {
-      background: #0a0a0f; border: 4px solid #e63946; padding: 28px 20px;
-      font-family: 'Press Start 2P', monospace;
+      background:#0a0a0f; border:4px solid #e63946; padding:28px 20px;
+      font-family:'Press Start 2P',monospace;
     }
     .mario-wrap .form-header { text-align:center; margin-bottom:28px; }
     .mario-wrap .mode-tag { font-size:7px; letter-spacing:4px; color:#e63946; margin-bottom:10px; }
     .mario-wrap .form-title { font-size:12px; color:#e0e0f0; }
     .mario-wrap .stat-item { margin-bottom:22px; }
-    .mario-wrap .stat-label {
-      font-size:7px; letter-spacing:2px; color:#ffd60a;
-      display:flex; justify-content:space-between; margin-bottom:10px;
-    }
+    .mario-wrap .stat-label { font-size:7px; letter-spacing:2px; color:#ffd60a; display:flex; justify-content:space-between; margin-bottom:10px; }
     .mario-wrap .stat-range { font-size:6px; color:#444; }
     .mario-wrap .slider-row { display:flex; align-items:center; gap:12px; }
-    .mario-wrap .stat-val { font-size:11px; color:#fff; min-width:48px; text-align:right; }
+    .mario-wrap .stat-val { font-size:11px; color:#fff; min-width:52px; text-align:right; }
     .mario-wrap .stat-unit { font-size:6px; color:#555; margin-top:3px; }
     .mario-wrap hr { border:none; border-top:2px solid #222; margin:24px 0; }
     .mario-wrap .submit-btn {
@@ -90,47 +172,35 @@
       width:100%; cursor:pointer; box-shadow:0 6px 0 #036b50; letter-spacing:1px;
     }
     .mario-wrap .submit-btn:active { transform:translateY(3px); box-shadow:0 3px 0 #036b50; }
-
-    input[type="range"] { flex:1; -webkit-appearance:none; height:8px; outline:none; }
     .mario-wrap input[type="range"] { background:#222; }
     .mario-wrap input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance:none; width:20px; height:20px;
       background:#e63946; border:3px solid #fff; box-shadow:2px 2px 0 #8b0000; cursor:pointer;
     }
     .mario-wrap input[type="range"]::-webkit-slider-runnable-track {
-      background: linear-gradient(to right, #e63946 0%, #e63946 var(--pct,0%), #222 var(--pct,0%));
+      background:linear-gradient(to right,#e63946 0%,#e63946 var(--pct,0%),#222 var(--pct,0%));
     }
 
-    /* ══ HOCA FORM ══ */
+    /* ── HOCA FORM ── */
     .hoca-wrap .form-box {
-      background: #faf6ed; position: relative;
-      padding: 32px 28px 28px 68px;
-      border: 1px solid #bbb; box-shadow: 3px 3px 12px rgba(0,0,0,0.25);
+      background:#faf6ed; position:relative;
+      padding:32px 28px 28px 68px; border:1px solid #bbb;
+      box-shadow:3px 3px 12px rgba(0,0,0,0.25);
       background-image:
-        linear-gradient(#faf6ed 24px, #c8d8f0 24px, #c8d8f0 26px, #faf6ed 26px),
-        linear-gradient(to right, transparent 60px, #e8a0a0 60px, #e8a0a0 62px, transparent 62px);
-      background-size: 100% 28px, 100% 100%;
+        linear-gradient(#faf6ed 24px,#c8d8f0 24px,#c8d8f0 26px,#faf6ed 26px),
+        linear-gradient(to right,transparent 60px,#e8a0a0 60px,#e8a0a0 62px,transparent 62px);
+      background-size:100% 28px,100% 100%;
     }
     .hoca-wrap .form-box::before {
       content:''; position:absolute; left:20px; top:0; bottom:0; width:24px;
-      background: repeating-linear-gradient(
-        to bottom, transparent 0px,transparent 20px,
-        #d0c8b0 20px,#d0c8b0 22px,transparent 22px,transparent 48px
-      );
+      background:repeating-linear-gradient(to bottom,transparent 0,transparent 20px,#d0c8b0 20px,#d0c8b0 22px,transparent 22px,transparent 48px);
     }
     .hoca-wrap .form-header { text-align:center; margin-bottom:24px; }
     .hoca-wrap .mode-tag { font-family:'Caveat',cursive; font-size:14px; color:#c0392b; margin-bottom:4px; }
-    .hoca-wrap .form-title {
-      font-family:'Caveat',cursive; font-size:26px; font-weight:700; color:#1a2a4a; line-height:1.2;
-    }
-    .hoca-wrap .form-title::after {
-      content:''; display:block; height:2px; background:#c0392b; margin: 6px auto 0; width:80%;
-    }
+    .hoca-wrap .form-title { font-family:'Caveat',cursive; font-size:26px; font-weight:700; color:#1a2a4a; }
+    .hoca-wrap .form-title::after { content:''; display:block; height:2px; background:#c0392b; margin:6px auto 0; width:80%; }
     .hoca-wrap .stat-item { margin-bottom:18px; }
-    .hoca-wrap .stat-label {
-      font-family:'Caveat',cursive; font-size:17px; color:#1a2a4a;
-      display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;
-    }
+    .hoca-wrap .stat-label { font-family:'Caveat',cursive; font-size:17px; color:#1a2a4a; display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
     .hoca-wrap .stat-range { font-family:'Caveat',cursive; font-size:13px; color:#888; }
     .hoca-wrap .slider-row { display:flex; align-items:center; gap:12px; }
     .hoca-wrap .stat-val { font-family:'Caveat',cursive; font-size:22px; color:#c0392b; font-weight:700; min-width:52px; text-align:right; }
@@ -143,46 +213,42 @@
       box-shadow:1px 1px 4px rgba(0,0,0,0.3);
     }
     .hoca-wrap input[type="range"]::-webkit-slider-runnable-track {
-      background: linear-gradient(to right, #c0392b 0%, #c0392b var(--pct,0%), #ddd var(--pct,0%));
+      background:linear-gradient(to right,#c0392b 0%,#c0392b var(--pct,0%),#ddd var(--pct,0%));
     }
     .hoca-wrap .submit-btn {
       font-family:'Caveat',cursive; font-size:22px; font-weight:700;
       background:#c0392b; color:#fff; border:none; padding:14px;
-      width:100%; cursor:pointer; letter-spacing:1px; border-radius:2px;
-      box-shadow: 2px 3px 0 #7a1515;
+      width:100%; cursor:pointer; border-radius:2px; box-shadow:2px 3px 0 #7a1515;
     }
     .hoca-wrap .submit-btn:active { transform:translateY(2px); box-shadow:1px 1px 0 #7a1515; }
 
-    /* ══ VINTAGE FORM ══ */
+    /* ── VINTAGE FORM ── */
     .vintage-wrap .form-box {
-      background: #f2e8d0; padding: 36px 28px 28px; position: relative;
-      border: 6px double #8b6840;
-      box-shadow: 0 0 0 2px #8b6840, inset 0 0 60px rgba(139,104,64,0.15);
+      background:#f2e8d0; padding:32px 28px 28px; position:relative;
+      border:5px double #8b6840;
+      box-shadow:0 0 0 2px #8b6840,inset 0 0 50px rgba(139,104,64,0.12);
     }
     .vintage-wrap .form-box::before {
       content:''; position:absolute; inset:0; pointer-events:none;
-      background:
-        radial-gradient(ellipse at 0% 0%, rgba(139,100,50,0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 100% 100%, rgba(100,70,30,0.15) 0%, transparent 50%);
+      background:radial-gradient(ellipse at 0% 0%,rgba(139,100,50,0.1) 0%,transparent 50%),
+                 radial-gradient(ellipse at 100% 100%,rgba(100,70,30,0.12) 0%,transparent 50%);
     }
-    .vintage-wrap .form-header { text-align:center; margin-bottom:28px; position:relative; }
-    .vintage-wrap .ornament { font-size:18px; color:#8b6840; letter-spacing:8px; margin-bottom:8px; display:block; }
-    .vintage-wrap .mode-tag {
-      font-family:'Playfair Display',serif; font-size:10px;
-      letter-spacing:6px; color:#8b6840; text-transform:uppercase; margin-bottom:6px;
-    }
-    .vintage-wrap .form-title { font-family:'UnifrakturMaguntia',cursive; font-size:28px; color:#2c1a00; line-height:1.2; margin-bottom:6px; }
-    .vintage-wrap .deco-line { display:flex; align-items:center; gap:8px; margin: 8px 0; color:#8b6840; }
+    .vintage-wrap .form-header { text-align:center; margin-bottom:24px; }
+    .vintage-wrap .ornament { font-size:16px; color:#8b6840; letter-spacing:8px; display:block; margin-bottom:6px; }
+    .vintage-wrap .mode-tag { font-family:'Playfair Display',serif; font-size:9px; letter-spacing:5px; color:#8b6840; text-transform:uppercase; margin-bottom:6px; }
+    .vintage-wrap .form-title { font-family:'UnifrakturMaguntia',cursive; font-size:28px; color:#2c1a00; }
+    .vintage-wrap .deco-line { display:flex; align-items:center; gap:8px; margin:8px 0; color:#8b6840; }
     .vintage-wrap .deco-line::before,.vintage-wrap .deco-line::after { content:''; flex:1; height:1px; background:#8b6840; }
-    .vintage-wrap .deco-line span { font-size:14px; }
     .vintage-wrap .stat-item { margin-bottom:16px; }
+    /* Readable labels: Playfair, dark on light */
     .vintage-wrap .stat-label {
-      font-family:'Playfair Display',serif; font-size:13px; font-style:italic; color:#2c1a00;
-      display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;
+      font-family:'Playfair Display',serif; font-size:13px; font-style:italic;
+      color:#2c1a00; display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;
     }
-    .vintage-wrap .stat-range { font-family:'Playfair Display',serif; font-size:11px; color:#8b6840; }
+    .vintage-wrap .stat-range { font-family:'Playfair Display',serif; font-size:11px; color:#8b6840; font-style:normal; }
     .vintage-wrap .slider-row { display:flex; align-items:center; gap:12px; }
-    .vintage-wrap .stat-val { font-family:'UnifrakturMaguntia',cursive; font-size:22px; color:#5c2d00; min-width:52px; text-align:right; }
+    /* Stat values: readable large Playfair, not fraktur */
+    .vintage-wrap .stat-val { font-family:'Playfair Display',serif; font-weight:700; font-size:18px; color:#2c1a00; min-width:52px; text-align:right; }
     .vintage-wrap .stat-unit { font-family:'Playfair Display',serif; font-size:10px; color:#8b6840; }
     .vintage-wrap hr { border:none; border-top:1px solid #8b6840; margin:18px 0; }
     .vintage-wrap input[type="range"] { background:#d4c09a; }
@@ -191,35 +257,25 @@
       background:#5c2d00; border:2px solid #f2e8d0; cursor:pointer;
     }
     .vintage-wrap input[type="range"]::-webkit-slider-runnable-track {
-      background: linear-gradient(to right, #5c2d00 0%, #5c2d00 var(--pct,0%), #d4c09a var(--pct,0%));
+      background:linear-gradient(to right,#5c2d00 0%,#5c2d00 var(--pct,0%),#d4c09a var(--pct,0%));
     }
     .vintage-wrap .submit-btn {
-      font-family:'UnifrakturMaguntia',cursive; font-size:22px;
-      background:#2c1a00; color:#f2e8d0; border: 2px solid #8b6840;
+      font-family:'Playfair Display',serif; font-size:16px; font-weight:700;
+      background:#2c1a00; color:#f2e8d0; border:2px solid #8b6840;
       padding:14px; width:100%; cursor:pointer; letter-spacing:2px;
     }
     .vintage-wrap .submit-btn:active { transform:translateY(2px); }
 
-    /* ══ RESULT — MARIO ══ */
-    .mario-result .result-box {
-      background:#0a0a0f; border:4px solid var(--rc);
-      font-family:'Press Start 2P',monospace; overflow:hidden;
-    }
-    .mario-result .result-header {
-      padding:32px 20px 20px; text-align:center;
-      border-bottom:2px solid var(--rc); background: var(--rbg);
-    }
-    .mario-result .wasted-text {
-      font-size:30px; color:var(--rc); text-shadow:5px 5px 0 var(--rc);
-      display:block; margin-bottom:8px; animation: wastedIn 0.5s ease;
-    }
+    /* ══════════════════════════════
+       RESULT — MARIO
+    ══════════════════════════════ */
+    .mario-result .result-box { background:#0a0a0f; border:4px solid var(--rc); font-family:'Press Start 2P',monospace; overflow:hidden; }
+    .mario-result .result-header { padding:32px 20px 20px; text-align:center; border-bottom:2px solid var(--rc); background:var(--rbg); }
+    .mario-result .wasted-text { font-size:30px; color:var(--rc); text-shadow:5px 5px 0 var(--rc); display:block; margin-bottom:8px; animation:wastedIn 0.5s ease; }
     @keyframes wastedIn { 0%{transform:scale(3);opacity:0} 60%{transform:scale(0.95)} 100%{transform:scale(1);opacity:1} }
     .mario-result .result-sub { font-size:7px; color:var(--rc); opacity:.7; letter-spacing:3px; }
     .mario-result .stats-list { padding:0 20px; }
-    .mario-result .stat-row {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:10px 0; border-bottom:1px solid #222; font-size:7px;
-    }
+    .mario-result .stat-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #222; font-size:7px; }
     .mario-result .stat-row:last-child { border-bottom:none; }
     .mario-result .sname { color:#888; }
     .mario-result .sright { display:flex; align-items:center; gap:8px; }
@@ -232,51 +288,33 @@
     .mario-result .tlabel { font-size:7px; letter-spacing:4px; color:#555; margin-bottom:12px; }
     .mario-result .score-bar-wrap { background:#222; height:12px; margin:14px 0; }
     .mario-result .score-bar-fill { height:100%; transition:width 1s ease; background:var(--rc); width:0; }
-    .mario-result .tscore {
-      font-size:44px; color:var(--rc); text-shadow:3px 3px 0 var(--rc); display:block;
-      animation:flicker 3s infinite;
-    }
+    .mario-result .tscore { font-size:44px; color:var(--rc); text-shadow:3px 3px 0 var(--rc); display:block; animation:flicker 3s infinite; }
     @keyframes flicker { 0%,94%,100%{opacity:1} 96%{opacity:.4} 98%{opacity:.8} }
     .mario-result .tsub { font-size:8px; color:#555; }
     .mario-result .result-footer { padding:12px 20px 20px; display:flex; gap:12px; }
-    .mario-result .back-btn {
-      font-family:'Press Start 2P',monospace; font-size:7px;
-      background:transparent; border:2px solid #333; color:#555; padding:10px 14px; cursor:pointer;
-    }
-    .mario-result .retry-btn {
-      font-family:'Press Start 2P',monospace; font-size:8px;
-      background:#06d6a0; color:#0a0a0f; border:none; padding:12px 16px;
-      cursor:pointer; flex:1; box-shadow:0 4px 0 #036b50;
-    }
+    .mario-result .back-btn { font-family:'Press Start 2P',monospace; font-size:7px; background:transparent; border:2px solid #333; color:#555; padding:10px 14px; cursor:pointer; }
+    .mario-result .retry-btn { font-family:'Press Start 2P',monospace; font-size:8px; background:#06d6a0; color:#0a0a0f; border:none; padding:12px 16px; cursor:pointer; flex:1; box-shadow:0 4px 0 #036b50; }
 
-    /* ══ RESULT — HOCA ══ */
+    /* ══════════════════════════════
+       RESULT — HOCA
+    ══════════════════════════════ */
     .hoca-result .result-box {
       background:#faf6ed; position:relative;
-      padding: 28px 28px 24px 68px;
-      border:1px solid #bbb; box-shadow:3px 3px 12px rgba(0,0,0,0.25);
+      padding:28px 28px 24px 68px; border:1px solid #bbb;
+      box-shadow:3px 3px 12px rgba(0,0,0,0.25);
       background-image:
-        linear-gradient(#faf6ed 24px, #c8d8f0 24px, #c8d8f0 26px, #faf6ed 26px),
-        linear-gradient(to right, transparent 60px, #e8a0a0 60px, #e8a0a0 62px, transparent 62px);
-      background-size: 100% 28px, 100% 100%;
+        linear-gradient(#faf6ed 24px,#c8d8f0 24px,#c8d8f0 26px,#faf6ed 26px),
+        linear-gradient(to right,transparent 60px,#e8a0a0 60px,#e8a0a0 62px,transparent 62px);
+      background-size:100% 28px,100% 100%;
     }
     .hoca-result .result-box::before {
       content:''; position:absolute; left:20px; top:0; bottom:0; width:24px;
-      background: repeating-linear-gradient(
-        to bottom,transparent 0,transparent 20px,
-        #d0c8b0 20px,#d0c8b0 22px,transparent 22px,transparent 48px
-      );
+      background:repeating-linear-gradient(to bottom,transparent 0,transparent 20px,#d0c8b0 20px,#d0c8b0 22px,transparent 22px,transparent 48px);
     }
-    .hoca-result .rh-grade {
-      font-family:'Caveat',cursive; font-weight:700;
-      font-size:96px; color:var(--rc); text-align:center; line-height:1; display:block;
-    }
+    .hoca-result .rh-grade { font-family:'Caveat',cursive; font-weight:700; font-size:96px; color:var(--rc); text-align:center; line-height:1; display:block; }
     .hoca-result .rh-underline { width:60%; height:3px; background:var(--rc); margin:0 auto 8px; }
     .hoca-result .rh-comment { font-family:'Caveat',cursive; font-size:18px; color:#1a2a4a; text-align:center; margin-bottom:16px; }
-    .hoca-result .stat-row {
-      display:flex; justify-content:space-between; align-items:baseline;
-      padding:6px 0; border-bottom:1px solid rgba(200,216,240,0.8);
-      font-family:'Caveat',cursive;
-    }
+    .hoca-result .stat-row { display:flex; justify-content:space-between; align-items:baseline; padding:6px 0; border-bottom:1px solid rgba(200,216,240,0.8); font-family:'Caveat',cursive; }
     .hoca-result .stat-row:last-child { border-bottom:none; }
     .hoca-result .sname { font-size:16px; color:#1a2a4a; }
     .hoca-result .sright { display:flex; align-items:center; gap:8px; }
@@ -292,93 +330,103 @@
     .hoca-result .tscore { font-family:'Caveat',cursive; font-size:26px; font-weight:700; color:var(--rc); }
     .hoca-result .tsub { font-family:'Caveat',cursive; font-size:14px; color:#888; }
     .hoca-result .result-footer { margin-top:16px; display:flex; gap:10px; }
-    .hoca-result .back-btn {
-      font-family:'Caveat',cursive; font-size:16px;
-      background:transparent; border:1px solid #bbb; color:#888; padding:8px 14px; cursor:pointer;
-    }
-    .hoca-result .retry-btn {
-      font-family:'Caveat',cursive; font-size:20px; font-weight:700;
-      background:#c0392b; color:#fff; border:none; padding:10px 16px; cursor:pointer; flex:1;
-    }
+    .hoca-result .back-btn { font-family:'Caveat',cursive; font-size:16px; background:transparent; border:1px solid #bbb; color:#888; padding:8px 14px; cursor:pointer; }
+    .hoca-result .retry-btn { font-family:'Caveat',cursive; font-size:20px; font-weight:700; background:#c0392b; color:#fff; border:none; padding:10px 16px; cursor:pointer; flex:1; }
 
-    /* ══ RESULT — VINTAGE ══ */
+    /* ══════════════════════════════
+       RESULT — VINTAGE
+       All body text: Playfair Display (readable)
+       Decorative display only: UnifrakturMaguntia
+    ══════════════════════════════ */
     .vintage-result .result-box {
-      background:#f2e8d0; padding:32px 28px 24px; position:relative;
-      border:6px double #8b6840;
-      box-shadow: 0 0 0 2px #8b6840, inset 0 0 60px rgba(139,104,64,0.15);
+      background:#f2e8d0; padding:28px 24px 24px; position:relative;
+      border:5px double #8b6840;
+      box-shadow:0 0 0 2px #8b6840,inset 0 0 50px rgba(139,104,64,0.12);
     }
     .vintage-result .result-box::before {
       content:''; position:absolute; inset:0; pointer-events:none;
-      background:
-        radial-gradient(ellipse at 0% 0%,rgba(139,100,50,0.12) 0%,transparent 50%),
-        radial-gradient(ellipse at 100% 100%,rgba(100,70,30,0.15) 0%,transparent 50%);
+      background:radial-gradient(ellipse at 0% 0%,rgba(139,100,50,0.1) 0%,transparent 50%),
+                 radial-gradient(ellipse at 100% 100%,rgba(100,70,30,0.12) 0%,transparent 50%);
     }
-    .vintage-result .rv-banner { text-align:center; padding-bottom:16px; border-bottom:2px solid #8b6840; margin-bottom:16px; }
+    /* The "stamp" — big fraktur is fine here, it's decorative */
+    .vintage-result .rv-banner { text-align:center; padding-bottom:14px; border-bottom:2px solid #8b6840; margin-bottom:14px; position:relative; }
     .vintage-result .rv-stamp {
-      font-family:'UnifrakturMaguntia',cursive; font-size:48px; color:var(--rc);
-      border:4px solid var(--rc); padding:6px 20px; display:inline-block;
-      transform:rotate(-3deg); margin-bottom:8px;
-      box-shadow:inset 0 0 8px rgba(0,0,0,0.1);
+      font-family:'UnifrakturMaguntia',cursive; font-size:52px; color:var(--rc);
+      border:4px solid var(--rc); padding:4px 18px; display:inline-block;
+      transform:rotate(-2deg); margin-bottom:6px;
     }
     .vintage-result .rv-sub {
-      font-family:'Playfair Display',serif; font-size:11px; font-style:italic;
-      color:#8b6840; letter-spacing:3px; text-transform:uppercase;
+      font-family:'Playfair Display',serif; font-size:12px; font-style:italic;
+      color:#5c3d10; letter-spacing:2px;
     }
+    /* Stat rows: fully Playfair, dark on sepia */
     .vintage-result .stat-row {
-      display:flex; justify-content:space-between; align-items:baseline;
-      padding:7px 0; border-bottom:1px solid #c8b080; font-family:'Playfair Display',serif;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:8px 0; border-bottom:1px solid #c8b080;
     }
     .vintage-result .stat-row:last-child { border-bottom:none; }
-    .vintage-result .sname { font-size:12px; font-style:italic; color:#2c1a00; }
+    .vintage-result .sname { font-family:'Playfair Display',serif; font-size:13px; font-style:italic; color:#2c1a00; }
     .vintage-result .sright { display:flex; align-items:center; gap:10px; }
-    .vintage-result .sval { font-size:12px; color:#5c3d10; }
-    .vintage-result .spts { font-family:'UnifrakturMaguntia',cursive; font-size:16px; }
-    .vintage-result .pts-great { color:#2d6a2d; }
-    .vintage-result .pts-good  { color:#8b5e00; }
-    .vintage-result .pts-bad   { color:#8b1a00; }
-    .vintage-result .total-sec { margin-top:16px; padding-top:14px; border-top:2px solid #8b6840; text-align:center; }
-    .vintage-result .tlabel {
-      font-family:'Playfair Display',serif; font-size:10px; font-style:italic;
-      letter-spacing:4px; color:#8b6840; margin-bottom:10px; text-transform:uppercase;
-    }
+    .vintage-result .sval { font-family:'Playfair Display',serif; font-size:12px; color:#5c3d10; }
+    /* Points: bold Playfair, colored */
+    .vintage-result .spts { font-family:'Playfair Display',serif; font-weight:700; font-size:13px; padding:2px 6px; }
+    .vintage-result .pts-great { color:#1a5c1a; background:rgba(26,92,26,0.1); }
+    .vintage-result .pts-good  { color:#7a5000; background:rgba(122,80,0,0.1); }
+    .vintage-result .pts-bad   { color:#8b1a00; background:rgba(139,26,0,0.1); }
+    .vintage-result .total-sec { margin-top:14px; padding-top:12px; border-top:2px solid #8b6840; text-align:center; }
+    .vintage-result .tlabel { font-family:'Playfair Display',serif; font-size:10px; font-style:italic; letter-spacing:4px; color:#8b6840; margin-bottom:10px; text-transform:uppercase; }
     .vintage-result .score-bar-wrap { background:#d4c09a; height:10px; margin:10px 0; border:1px solid #8b6840; }
     .vintage-result .score-bar-fill { height:100%; transition:width 1s ease; background:var(--rc); width:0; }
-    .vintage-result .tscore { font-family:'UnifrakturMaguntia',cursive; font-size:34px; color:var(--rc); }
-    .vintage-result .tsub { font-family:'Playfair Display',serif; font-size:11px; font-style:italic; color:#8b6840; }
-    .vintage-result .result-footer { margin-top:16px; display:flex; gap:10px; }
-    .vintage-result .back-btn {
-      font-family:'Playfair Display',serif; font-style:italic; font-size:13px;
-      background:transparent; border:1px solid #8b6840; color:#8b6840; padding:8px 14px; cursor:pointer;
-    }
-    .vintage-result .retry-btn {
-      font-family:'UnifrakturMaguntia',cursive; font-size:20px;
-      background:#2c1a00; color:#f2e8d0; border:2px solid #8b6840; padding:10px 16px; cursor:pointer; flex:1;
-    }
+    .vintage-result .tscore { font-family:'Playfair Display',serif; font-weight:700; font-size:28px; color:var(--rc); }
+    .vintage-result .tsub { font-family:'Playfair Display',serif; font-size:12px; font-style:italic; color:#8b6840; }
+    .vintage-result .result-footer { margin-top:14px; display:flex; gap:10px; }
+    .vintage-result .back-btn { font-family:'Playfair Display',serif; font-style:italic; font-size:13px; background:transparent; border:1px solid #8b6840; color:#8b6840; padding:8px 14px; cursor:pointer; }
+    .vintage-result .retry-btn { font-family:'Playfair Display',serif; font-weight:700; font-size:15px; background:#2c1a00; color:#f2e8d0; border:2px solid #8b6840; padding:10px 16px; cursor:pointer; flex:1; letter-spacing:1px; }
   </style>
 </head>
 <body class="theme-neutral">
 
-<!-- ── INTRO ── -->
+<!-- ══ INTRO ══ -->
 <div class="screen active" id="screen-intro">
-  <div class="intro-box">
-    <span class="pixel-icon">🎮</span>
-    <div class="intro-title">WASTED<br>STATS</div>
-    <div class="intro-sub">GÜNLÜKSİSTEM v1.0</div>
-    <div class="mode-label">— MOD SEÇ —</div>
-    <div class="mode-buttons">
-      <button class="btn-intro mario-btn"   onclick="selectMode('mario')">🍄 Ben Bir Mario'yum!</button>
-      <button class="btn-intro hoca-btn"    onclick="selectMode('hoca')">📝 Notumu Ver Hocam!</button>
-      <button class="btn-intro vintage-btn" onclick="selectMode('vintage')">📜 Devrimin Evrakı</button>
+  <div class="intro-header">WASTED STATS</div>
+  <div class="intro-tagline">GÜNLÜKSİSTEM v1.0 — MOD SEÇ</div>
+
+  <div class="mode-cards">
+
+    <!-- Mario card -->
+    <div class="card-mario" onclick="selectMode('mario')">
+      <div class="cm-label">▸ PLAYER SELECT</div>
+      <div class="cm-title">🍄 Ben Bir Mario'yum!</div>
+      <div class="cm-desc">WASTED / LEVEL CLEAR / PERFECT<br>piksel skorlama sistemi</div>
+      <div class="cm-arrow">▶</div>
     </div>
+
+    <!-- Hoca card -->
+    <div class="card-hoca" onclick="selectMode('hoca')">
+      <div class="ch-grade">A</div>
+      <div class="ch-label">Öğrenci Adı: ___________</div>
+      <div class="ch-title">📝 Notumu Ver Hocam!</div>
+      <div class="ch-desc">F'den A+'ya not sistemi<br>hoca yorumlarıyla birlikte</div>
+    </div>
+
+    <!-- Vintage card -->
+    <div class="card-vintage" onclick="selectMode('vintage')">
+      <span class="cv-ornament">❧ ❧ ❧</span>
+      <div class="cv-label">Günlük Vakanüvis</div>
+      <div class="cv-title">📜 Devrimin Evrakı</div>
+      <div class="cv-divider"></div>
+      <div class="cv-desc">Mahkum'dan Kahraman'a<br>osmanlı evrak estetiğiyle</div>
+    </div>
+
   </div>
 </div>
 
-<!-- ── FORM ── -->
+<!-- ══ FORM ══ -->
 <div class="screen" id="screen-form">
   <div class="mode-wrap" id="form-wrap"></div>
 </div>
 
-<!-- ── RESULT ── -->
+<!-- ══ RESULT ══ -->
 <div class="screen" id="screen-result">
   <div class="mode-wrap" id="result-wrap"></div>
 </div>
@@ -394,7 +442,6 @@ const STATS = [
   { key:'su',       emoji:'💧', label:'Su İçme',       unit:'bardak',min:0, max:10,    step:1,   score: v => v>=8?100:v>=6?80:v>=4?60:v>=2?40:10 },
   { key:'erteleme', emoji:'📌', label:'Ertelenen İş',  unit:'adet',  min:0, max:10,    step:1,   score: v => v===0?100:v<=2?80:v<=5?50:v<=8?20:5 },
 ];
-
 const DEFAULTS = { ekran:4, adim:3000, karar:3, uyku:6, su:3, erteleme:2 };
 
 const MARIO_RES = [
@@ -406,23 +453,22 @@ const MARIO_RES = [
 const HOCA_RES = [
   { max:35,  grade:'F',  comment:'Kalan var mı?',      color:'#c0392b' },
   { max:50,  grade:'D',  comment:'Geçer not altı…',    color:'#e67e22' },
-  { max:65,  grade:'C',  comment:'İdare eder.',         color:'#f39c12' },
+  { max:65,  grade:'C',  comment:'İdare eder.',         color:'#d4a017' },
   { max:80,  grade:'B',  comment:'Beklediğimden iyi.', color:'#2980b9' },
   { max:90,  grade:'A',  comment:'Aferin!',             color:'#27ae60' },
   { max:101, grade:'A+', comment:'Peki ya yarın?',      color:'#1a8a50' },
 ];
 const VINTAGE_RES = [
-  { max:35,  stamp:'Mahkum',   sub:'Tarihin Kara Sayfası',   color:'#8b1a00' },
-  { max:55,  stamp:'Düşkün',   sub:'İsyan Günlüğü',         color:'#7a4500' },
-  { max:75,  stamp:'Vasıflı',  sub:'Orta Sınıf Vakanüvisi', color:'#5c3d00' },
-  { max:101, stamp:'Kahraman', sub:'Vatanın Öncü Neferi',   color:'#2d5a1a' },
+  { max:35,  stamp:'Mahkûm',  sub:'Tarihin Kara Sayfası',   color:'#8b1a00' },
+  { max:55,  stamp:'Düşkün',  sub:'İsyan ve Çöküş Günlüğü', color:'#7a4500' },
+  { max:75,  stamp:'Vasıflı', sub:'Orta Sınıf Vakanüvisi',  color:'#5c3d00' },
+  { max:101, stamp:'Kahraman',sub:'Vatanın Öncü Neferi',    color:'#1a5c1a' },
 ];
-
-const BODY_THEMES = { mario:'theme-mario', hoca:'theme-hoca', vintage:'theme-vintage' };
 
 function selectMode(mode) {
   currentMode = mode;
-  document.body.className = BODY_THEMES[mode];
+  const themes = { mario:'theme-mario', hoca:'theme-hoca', vintage:'theme-vintage' };
+  document.body.className = themes[mode];
   renderForm();
   showScreen('screen-form');
 }
@@ -432,10 +478,10 @@ function renderForm() {
   wrap.className = 'mode-wrap ' + currentMode + '-wrap';
 
   const cfg = {
-    mario:   { tag:'🍄 MARIO MODU',      title:'GÜNÜN İSTATİSTİKLERİ', submit:'▶ HESAPLA',   extra:'' },
-    hoca:    { tag:'Tarih: ___________', title:'Günlük Değerlendirme', submit:'✏ Notu Aç!',  extra:'' },
-    vintage: { tag:'Haber Ajansı Özel',  title:'Günün Vak\'ası',        submit:'⚜ İlan Et',
-               extra:'<span class="ornament">❧ ❧ ❧</span>', deco:'<div class="deco-line"><span>✦</span></div>' },
+    mario:   { tag:'🍄 MARIO MODU',      title:'GÜNÜN İSTATİSTİKLERİ', submit:'▶ HESAPLA', deco:'' },
+    hoca:    { tag:'Tarih: ___________', title:'Günlük Değerlendirme', submit:'✏ Notu Aç!', deco:'' },
+    vintage: { tag:'Günlük Vakanüvis',  title:'Günün Vakası',          submit:'Mühürle ve İlan Et',
+               deco:'<span class="ornament">❧ ❧ ❧</span><div class="deco-line"><span>✦</span></div>' },
   }[currentMode];
 
   let sliders = '';
@@ -447,7 +493,7 @@ function renderForm() {
       <div class="stat-item">
         <div class="stat-label">
           <span>${s.emoji} ${s.label}</span>
-          <span class="stat-range">${s.min} – ${s.max}</span>
+          <span class="stat-range">${s.min}–${s.max}</span>
         </div>
         <div class="slider-row">
           <input type="range" id="s_${s.key}" min="${s.min}" max="${s.max}" step="${s.step}"
@@ -463,10 +509,9 @@ function renderForm() {
 
   wrap.innerHTML = `<div class="form-box">
     <div class="form-header">
-      ${cfg.extra || ''}
+      ${cfg.deco}
       <div class="mode-tag">${cfg.tag}</div>
       <div class="form-title">${cfg.title}</div>
-      ${cfg.deco || ''}
     </div>
     ${sliders}
     <hr>
@@ -474,7 +519,7 @@ function renderForm() {
   </div>`;
 }
 
-function updateSlider(input, valId, key, unit) {
+function updateSlider(input, valId, key) {
   const v = parseInt(input.value);
   document.getElementById(valId).textContent = key === 'adim' ? v.toLocaleString('tr') : v;
   const pct = ((v - input.min) / (input.max - input.min) * 100).toFixed(1);
@@ -506,10 +551,7 @@ function statRows(scores, vals, mode) {
   return STATS.map(s => {
     const dv = s.key === 'adim' ? vals[s.key].toLocaleString('tr') + ' ' + s.unit : vals[s.key] + ' ' + s.unit;
     const pc = ptsClass(scores[s.key]);
-    let pts = '';
-    if (mode === 'mario')   pts = `<span class="spts ${pc}">${scores[s.key]}p</span>`;
-    if (mode === 'hoca')    pts = `<span class="spts ${pc}">${scores[s.key]}p</span>`;
-    if (mode === 'vintage') pts = `<span class="spts ${pc}">${scores[s.key]}</span>`;
+    let pts = `<span class="spts ${pc}">${scores[s.key]}p</span>`;
     return `<div class="stat-row"><span class="sname">${s.emoji} ${s.label}</span><div class="sright"><span class="sval">${dv}</span>${pts}</div></div>`;
   }).join('');
 }
@@ -563,7 +605,7 @@ function renderVintage(wrap, avg, scores, vals) {
   wrap.style.setProperty('--rc', r.color);
   wrap.innerHTML = `<div class="result-box">
     <div class="rv-banner">
-      <span class="rv-stamp">${r.stamp}</span>
+      <div class="rv-stamp">${r.stamp}</div>
       <div class="rv-sub">${r.sub}</div>
     </div>
     ${statRows(scores, vals, 'vintage')}
@@ -575,7 +617,7 @@ function renderVintage(wrap, avg, scores, vals) {
     </div>
     <div class="result-footer">
       <button class="back-btn" onclick="goBack()">◀ Geri</button>
-      <button class="retry-btn" onclick="goIntro()">⚜ Yeniden</button>
+      <button class="retry-btn" onclick="goIntro()">Yeniden Başla</button>
     </div>
   </div>`;
 }
