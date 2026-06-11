@@ -394,7 +394,7 @@
     }
     .share-btn:active { transform:translateY(2px); }
     .share-wa { background:#25d366; color:#fff; box-shadow:0 4px 0 #128c4a; }
-    .share-x  { background:#000; color:#fff; box-shadow:0 4px 0 #333; }
+    .share-x  { background:#000; color:#fff; box-shadow:0 4px 0 #333; font-size:12px; }
     .share-ig { background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; box-shadow:0 4px 0 #8b0050; }
 
     /* Hoca share */
@@ -405,7 +405,7 @@
       flex:1; padding:7px 4px; border:none; cursor:pointer; border-radius:2px;
     }
     .hoca-wa { background:#25d366; color:#fff; }
-    .hoca-x  { background:#000; color:#fff; }
+    .hoca-x  { background:#000; color:#fff; font-size:20px; }
     .hoca-ig { background:linear-gradient(135deg,#f09433,#dc2743,#bc1888); color:#fff; }
 
     /* Vintage share */
@@ -623,7 +623,7 @@ function shareBtnsHtml(mode, avg, result) {
       <div class="share-vintage-label">— Yaygınlaştır —</div>
       <div class="share-vintage-btns">
         <button class="vintage-share-btn" onclick="shareWA('${esc}')">WhatsApp</button>
-        <button class="vintage-share-btn" onclick="shareX('${esc}')">𝕏</button>
+        <button class="vintage-share-btn" style="font-size:18px;" onclick="shareX('${esc}')">𝕏</button>
         <button class="vintage-share-btn" id="ig-btn" onclick="shareIG('${esc}')">Instagram</button>
       </div>
     </div>`;
