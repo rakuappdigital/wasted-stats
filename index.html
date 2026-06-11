@@ -4,740 +4,588 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WASTED STATS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@400;600;700&family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    :root {
-      --pixel: 4px;
-      --red: #e63946;
-      --yellow: #ffd60a;
-      --green: #06d6a0;
-      --blue: #4cc9f0;
-      --dark: #0a0a0f;
-      --darker: #05050a;
-      --gray: #2a2a3a;
-      --light: #e0e0f0;
-    }
-
     body {
-      background: var(--darker);
-      color: var(--light);
-      font-family: 'Press Start 2P', monospace;
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
-      padding: 20px;
-      overflow-x: hidden;
+      align-items: flex-start;
+      padding: 24px 16px;
+      transition: background 0.4s;
     }
 
-    /* CRT scanlines effect */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg, transparent, transparent 2px,
-        rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
-      );
-      pointer-events: none;
-      z-index: 9999;
-    }
+    body.theme-neutral { background: #111; }
+    body.theme-mario   { background: #0a0a0f; }
+    body.theme-hoca    { background: #d4c8a8; }
+    body.theme-vintage { background: #2a1f0e; }
 
-    .screen {
-      display: none;
-      width: 100%;
-      max-width: 480px;
-      animation: fadeIn 0.3s ease;
-    }
+    .screen { display: none; width: 100%; max-width: 480px; animation: fadeIn 0.35s ease; }
     .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.97); }
-      to { opacity: 1; transform: scale(1); }
+    /* CRT scanlines — only for mario/intro */
+    body.theme-neutral::after, body.theme-mario::after {
+      content:''; position:fixed; inset:0;
+      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+      pointer-events:none; z-index:9999;
     }
 
-    /* ── INTRO SCREEN ── */
+    /* ══ INTRO ══ */
     .intro-box {
-      background: var(--dark);
-      border: var(--pixel) solid var(--yellow);
-      padding: 40px 24px;
-      text-align: center;
-      position: relative;
+      background: #0d0d12; border: 4px solid #ffd60a;
+      padding: 40px 24px 36px; text-align: center; position: relative;
     }
     .intro-box::before {
-      content: '';
-      position: absolute;
-      inset: var(--pixel);
-      border: var(--pixel) solid rgba(255,214,10,0.2);
-      pointer-events: none;
+      content:''; position:absolute; inset:4px;
+      border: 2px solid rgba(255,214,10,0.18); pointer-events:none;
     }
-
-    .game-title {
-      font-size: 28px;
-      color: var(--yellow);
+    .intro-title {
+      font-family: 'Press Start 2P', monospace; font-size: 26px; color: #ffd60a;
       text-shadow: 4px 4px 0 #7a6500, 0 0 30px rgba(255,214,10,0.4);
-      line-height: 1.4;
-      margin-bottom: 8px;
-      letter-spacing: 2px;
+      line-height: 1.4; margin-bottom: 6px; letter-spacing: 2px;
     }
-    .game-subtitle {
-      font-size: 8px;
-      color: #888;
-      margin-bottom: 48px;
-      letter-spacing: 3px;
+    .intro-sub { font-family: 'Press Start 2P', monospace; font-size: 7px; color: #555; letter-spacing: 3px; margin-bottom: 44px; }
+    .pixel-icon { font-size: 44px; margin-bottom: 36px; display:block; animation: bounce 1s ease-in-out infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .mode-label { font-family: 'Press Start 2P', monospace; font-size: 7px; color: #555; letter-spacing: 3px; margin-bottom: 18px; }
+    .mode-buttons { display:flex; flex-direction:column; gap:14px; }
+    .btn-intro {
+      font-family: 'Press Start 2P', monospace; font-size: 10px; padding: 16px 12px;
+      border: none; cursor: pointer; letter-spacing: 1px; line-height: 1.6; transition: transform 0.08s;
     }
+    .btn-intro:active { transform: translateY(3px); }
+    .btn-intro.mario-btn   { background:#e63946; color:#fff; box-shadow:0 6px 0 #8b0000; }
+    .btn-intro.mario-btn:active { box-shadow:0 3px 0 #8b0000; }
+    .btn-intro.hoca-btn    { background:#4a90d9; color:#fff; box-shadow:0 6px 0 #1a4a80; }
+    .btn-intro.hoca-btn:active { box-shadow:0 3px 0 #1a4a80; }
+    .btn-intro.vintage-btn { background:#8b5e3c; color:#f5e6c8; box-shadow:0 6px 0 #3d2010; }
+    .btn-intro.vintage-btn:active { box-shadow:0 3px 0 #3d2010; }
 
-    .pixel-icon {
-      font-size: 48px;
-      margin-bottom: 40px;
-      display: block;
-      animation: bounce 1s ease-in-out infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
+    .mode-wrap { width:100%; }
 
-    .mode-label {
-      font-size: 7px;
-      color: #666;
-      letter-spacing: 3px;
-      margin-bottom: 20px;
-    }
-
-    .mode-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .btn {
+    /* ══ MARIO FORM ══ */
+    .mario-wrap .form-box {
+      background: #0a0a0f; border: 4px solid #e63946; padding: 28px 20px;
       font-family: 'Press Start 2P', monospace;
-      font-size: 10px;
-      padding: 16px 12px;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: transform 0.1s;
-      line-height: 1.6;
     }
-    .btn:active { transform: translateY(3px); }
+    .mario-wrap .form-header { text-align:center; margin-bottom:28px; }
+    .mario-wrap .mode-tag { font-size:7px; letter-spacing:4px; color:#e63946; margin-bottom:10px; }
+    .mario-wrap .form-title { font-size:12px; color:#e0e0f0; }
+    .mario-wrap .stat-item { margin-bottom:22px; }
+    .mario-wrap .stat-label {
+      font-size:7px; letter-spacing:2px; color:#ffd60a;
+      display:flex; justify-content:space-between; margin-bottom:10px;
+    }
+    .mario-wrap .stat-range { font-size:6px; color:#444; }
+    .mario-wrap .slider-row { display:flex; align-items:center; gap:12px; }
+    .mario-wrap .stat-val { font-size:11px; color:#fff; min-width:48px; text-align:right; }
+    .mario-wrap .stat-unit { font-size:6px; color:#555; margin-top:3px; }
+    .mario-wrap hr { border:none; border-top:2px solid #222; margin:24px 0; }
+    .mario-wrap .submit-btn {
+      font-family:'Press Start 2P',monospace; font-size:11px;
+      background:#06d6a0; color:#0a0a0f; border:none; padding:18px;
+      width:100%; cursor:pointer; box-shadow:0 6px 0 #036b50; letter-spacing:1px;
+    }
+    .mario-wrap .submit-btn:active { transform:translateY(3px); box-shadow:0 3px 0 #036b50; }
 
-    .btn-mario {
-      background: var(--red);
-      color: #fff;
-      box-shadow: 0 6px 0 #8b0000, 0 0 20px rgba(230,57,70,0.3);
+    input[type="range"] { flex:1; -webkit-appearance:none; height:8px; outline:none; }
+    .mario-wrap input[type="range"] { background:#222; }
+    .mario-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance:none; width:20px; height:20px;
+      background:#e63946; border:3px solid #fff; box-shadow:2px 2px 0 #8b0000; cursor:pointer;
     }
-    .btn-mario:active { box-shadow: 0 3px 0 #8b0000; }
-
-    .btn-hoca {
-      background: var(--blue);
-      color: var(--dark);
-      box-shadow: 0 6px 0 #1a6b8a, 0 0 20px rgba(76,201,240,0.3);
-    }
-    .btn-hoca:active { box-shadow: 0 3px 0 #1a6b8a; }
-
-    .btn-secondary {
-      background: var(--gray);
-      color: var(--light);
-      box-shadow: 0 6px 0 #111;
-      font-size: 9px;
-      padding: 14px 12px;
-    }
-    .btn-secondary:active { box-shadow: 0 3px 0 #111; }
-
-    .btn-submit {
-      background: var(--green);
-      color: var(--dark);
-      box-shadow: 0 6px 0 #036b50;
-      font-size: 11px;
-      padding: 18px;
-      width: 100%;
-    }
-    .btn-submit:active { box-shadow: 0 3px 0 #036b50; }
-
-    /* ── STATS FORM ── */
-    .form-box {
-      background: var(--dark);
-      border: var(--pixel) solid;
-      padding: 28px 20px;
-    }
-    .mario-mode .form-box { border-color: var(--red); }
-    .hoca-mode .form-box { border-color: var(--blue); }
-
-    .form-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    .form-header .mode-tag {
-      font-size: 7px;
-      letter-spacing: 4px;
-      margin-bottom: 10px;
-    }
-    .mario-mode .mode-tag { color: var(--red); }
-    .hoca-mode .mode-tag { color: var(--blue); }
-
-    .form-header h2 {
-      font-size: 13px;
-      color: var(--light);
+    .mario-wrap input[type="range"]::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, #e63946 0%, #e63946 var(--pct,0%), #222 var(--pct,0%));
     }
 
-    .stat-item {
-      margin-bottom: 24px;
+    /* ══ HOCA FORM ══ */
+    .hoca-wrap .form-box {
+      background: #faf6ed; position: relative;
+      padding: 32px 28px 28px 68px;
+      border: 1px solid #bbb; box-shadow: 3px 3px 12px rgba(0,0,0,0.25);
+      background-image:
+        linear-gradient(#faf6ed 24px, #c8d8f0 24px, #c8d8f0 26px, #faf6ed 26px),
+        linear-gradient(to right, transparent 60px, #e8a0a0 60px, #e8a0a0 62px, transparent 62px);
+      background-size: 100% 28px, 100% 100%;
     }
-    .stat-label {
-      font-size: 7px;
-      letter-spacing: 2px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .hoca-wrap .form-box::before {
+      content:''; position:absolute; left:20px; top:0; bottom:0; width:24px;
+      background: repeating-linear-gradient(
+        to bottom, transparent 0px,transparent 20px,
+        #d0c8b0 20px,#d0c8b0 22px,transparent 22px,transparent 48px
+      );
     }
-    .mario-mode .stat-label { color: var(--yellow); }
-    .hoca-mode .stat-label { color: var(--blue); }
+    .hoca-wrap .form-header { text-align:center; margin-bottom:24px; }
+    .hoca-wrap .mode-tag { font-family:'Caveat',cursive; font-size:14px; color:#c0392b; margin-bottom:4px; }
+    .hoca-wrap .form-title {
+      font-family:'Caveat',cursive; font-size:26px; font-weight:700; color:#1a2a4a; line-height:1.2;
+    }
+    .hoca-wrap .form-title::after {
+      content:''; display:block; height:2px; background:#c0392b; margin: 6px auto 0; width:80%;
+    }
+    .hoca-wrap .stat-item { margin-bottom:18px; }
+    .hoca-wrap .stat-label {
+      font-family:'Caveat',cursive; font-size:17px; color:#1a2a4a;
+      display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;
+    }
+    .hoca-wrap .stat-range { font-family:'Caveat',cursive; font-size:13px; color:#888; }
+    .hoca-wrap .slider-row { display:flex; align-items:center; gap:12px; }
+    .hoca-wrap .stat-val { font-family:'Caveat',cursive; font-size:22px; color:#c0392b; font-weight:700; min-width:52px; text-align:right; }
+    .hoca-wrap .stat-unit { font-family:'Caveat',cursive; font-size:12px; color:#999; }
+    .hoca-wrap hr { border:none; border-top:1px dashed #c0392b; margin:20px 0; }
+    .hoca-wrap input[type="range"] { background:#ddd; }
+    .hoca-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance:none; width:18px; height:18px;
+      background:#c0392b; border:2px solid #fff; border-radius:50%; cursor:pointer;
+      box-shadow:1px 1px 4px rgba(0,0,0,0.3);
+    }
+    .hoca-wrap input[type="range"]::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, #c0392b 0%, #c0392b var(--pct,0%), #ddd var(--pct,0%));
+    }
+    .hoca-wrap .submit-btn {
+      font-family:'Caveat',cursive; font-size:22px; font-weight:700;
+      background:#c0392b; color:#fff; border:none; padding:14px;
+      width:100%; cursor:pointer; letter-spacing:1px; border-radius:2px;
+      box-shadow: 2px 3px 0 #7a1515;
+    }
+    .hoca-wrap .submit-btn:active { transform:translateY(2px); box-shadow:1px 1px 0 #7a1515; }
 
-    .stat-range {
-      font-size: 6px;
-      color: #555;
+    /* ══ VINTAGE FORM ══ */
+    .vintage-wrap .form-box {
+      background: #f2e8d0; padding: 36px 28px 28px; position: relative;
+      border: 6px double #8b6840;
+      box-shadow: 0 0 0 2px #8b6840, inset 0 0 60px rgba(139,104,64,0.15);
     }
+    .vintage-wrap .form-box::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(ellipse at 0% 0%, rgba(139,100,50,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%, rgba(100,70,30,0.15) 0%, transparent 50%);
+    }
+    .vintage-wrap .form-header { text-align:center; margin-bottom:28px; position:relative; }
+    .vintage-wrap .ornament { font-size:18px; color:#8b6840; letter-spacing:8px; margin-bottom:8px; display:block; }
+    .vintage-wrap .mode-tag {
+      font-family:'Playfair Display',serif; font-size:10px;
+      letter-spacing:6px; color:#8b6840; text-transform:uppercase; margin-bottom:6px;
+    }
+    .vintage-wrap .form-title { font-family:'UnifrakturMaguntia',cursive; font-size:28px; color:#2c1a00; line-height:1.2; margin-bottom:6px; }
+    .vintage-wrap .deco-line { display:flex; align-items:center; gap:8px; margin: 8px 0; color:#8b6840; }
+    .vintage-wrap .deco-line::before,.vintage-wrap .deco-line::after { content:''; flex:1; height:1px; background:#8b6840; }
+    .vintage-wrap .deco-line span { font-size:14px; }
+    .vintage-wrap .stat-item { margin-bottom:16px; }
+    .vintage-wrap .stat-label {
+      font-family:'Playfair Display',serif; font-size:13px; font-style:italic; color:#2c1a00;
+      display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;
+    }
+    .vintage-wrap .stat-range { font-family:'Playfair Display',serif; font-size:11px; color:#8b6840; }
+    .vintage-wrap .slider-row { display:flex; align-items:center; gap:12px; }
+    .vintage-wrap .stat-val { font-family:'UnifrakturMaguntia',cursive; font-size:22px; color:#5c2d00; min-width:52px; text-align:right; }
+    .vintage-wrap .stat-unit { font-family:'Playfair Display',serif; font-size:10px; color:#8b6840; }
+    .vintage-wrap hr { border:none; border-top:1px solid #8b6840; margin:18px 0; }
+    .vintage-wrap input[type="range"] { background:#d4c09a; }
+    .vintage-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance:none; width:18px; height:18px;
+      background:#5c2d00; border:2px solid #f2e8d0; cursor:pointer;
+    }
+    .vintage-wrap input[type="range"]::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, #5c2d00 0%, #5c2d00 var(--pct,0%), #d4c09a var(--pct,0%));
+    }
+    .vintage-wrap .submit-btn {
+      font-family:'UnifrakturMaguntia',cursive; font-size:22px;
+      background:#2c1a00; color:#f2e8d0; border: 2px solid #8b6840;
+      padding:14px; width:100%; cursor:pointer; letter-spacing:2px;
+    }
+    .vintage-wrap .submit-btn:active { transform:translateY(2px); }
 
-    .stat-input-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* ══ RESULT — MARIO ══ */
+    .mario-result .result-box {
+      background:#0a0a0f; border:4px solid var(--rc);
+      font-family:'Press Start 2P',monospace; overflow:hidden;
     }
-
-    input[type="range"] {
-      flex: 1;
-      -webkit-appearance: none;
-      height: 8px;
-      background: var(--gray);
-      outline: none;
-      border-radius: 0;
+    .mario-result .result-header {
+      padding:32px 20px 20px; text-align:center;
+      border-bottom:2px solid var(--rc); background: var(--rbg);
     }
-    .mario-mode input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      background: var(--red);
-      cursor: pointer;
-      border: 3px solid #fff;
-      box-shadow: 2px 2px 0 #8b0000;
+    .mario-result .wasted-text {
+      font-size:30px; color:var(--rc); text-shadow:5px 5px 0 var(--rc);
+      display:block; margin-bottom:8px; animation: wastedIn 0.5s ease;
     }
-    .hoca-mode input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      background: var(--blue);
-      cursor: pointer;
-      border: 3px solid #fff;
-      box-shadow: 2px 2px 0 #1a6b8a;
+    @keyframes wastedIn { 0%{transform:scale(3);opacity:0} 60%{transform:scale(0.95)} 100%{transform:scale(1);opacity:1} }
+    .mario-result .result-sub { font-size:7px; color:var(--rc); opacity:.7; letter-spacing:3px; }
+    .mario-result .stats-list { padding:0 20px; }
+    .mario-result .stat-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 0; border-bottom:1px solid #222; font-size:7px;
     }
-    .mario-mode input[type="range"]::-webkit-slider-runnable-track {
-      background: linear-gradient(to right, var(--red) 0%, var(--red) var(--val, 0%), var(--gray) var(--val, 0%));
+    .mario-result .stat-row:last-child { border-bottom:none; }
+    .mario-result .sname { color:#888; }
+    .mario-result .sright { display:flex; align-items:center; gap:8px; }
+    .mario-result .sval { color:#fff; }
+    .mario-result .spts { font-size:6px; padding:3px 6px; }
+    .mario-result .pts-great { background:#06d6a0; color:#0a0a0f; }
+    .mario-result .pts-good  { background:#ffd60a; color:#0a0a0f; }
+    .mario-result .pts-bad   { background:#e63946; color:#fff; }
+    .mario-result .total-sec { padding:20px; text-align:center; }
+    .mario-result .tlabel { font-size:7px; letter-spacing:4px; color:#555; margin-bottom:12px; }
+    .mario-result .score-bar-wrap { background:#222; height:12px; margin:14px 0; }
+    .mario-result .score-bar-fill { height:100%; transition:width 1s ease; background:var(--rc); width:0; }
+    .mario-result .tscore {
+      font-size:44px; color:var(--rc); text-shadow:3px 3px 0 var(--rc); display:block;
+      animation:flicker 3s infinite;
     }
-    .hoca-mode input[type="range"]::-webkit-slider-runnable-track {
-      background: linear-gradient(to right, var(--blue) 0%, var(--blue) var(--val, 0%), var(--gray) var(--val, 0%));
+    @keyframes flicker { 0%,94%,100%{opacity:1} 96%{opacity:.4} 98%{opacity:.8} }
+    .mario-result .tsub { font-size:8px; color:#555; }
+    .mario-result .result-footer { padding:12px 20px 20px; display:flex; gap:12px; }
+    .mario-result .back-btn {
+      font-family:'Press Start 2P',monospace; font-size:7px;
+      background:transparent; border:2px solid #333; color:#555; padding:10px 14px; cursor:pointer;
     }
-
-    .stat-value {
-      font-size: 11px;
-      min-width: 48px;
-      text-align: right;
-      color: #fff;
-    }
-    .stat-unit {
-      font-size: 6px;
-      color: #555;
-      margin-top: 3px;
-    }
-
-    .divider {
-      border: none;
-      border-top: 2px solid var(--gray);
-      margin: 28px 0;
-    }
-
-    /* ── RESULT SCREEN ── */
-    .result-box {
-      background: var(--dark);
-      border: var(--pixel) solid;
-      overflow: hidden;
-      position: relative;
-    }
-    .mario-result .result-box { border-color: var(--red); }
-    .hoca-result .result-box { border-color: var(--blue); }
-
-    .result-header {
-      text-align: center;
-      padding: 32px 20px 24px;
-      position: relative;
-    }
-
-    /* WASTED style */
-    .wasted-text {
-      font-size: 36px;
-      letter-spacing: 4px;
-      text-shadow: 6px 6px 0 currentColor;
-      animation: wastedAnim 0.5s ease;
-      display: block;
-      margin-bottom: 8px;
-    }
-    @keyframes wastedAnim {
-      0% { transform: scale(3); opacity: 0; }
-      60% { transform: scale(0.95); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .result-sub {
-      font-size: 8px;
-      letter-spacing: 3px;
-      opacity: 0.7;
-    }
-
-    .stats-list {
-      padding: 0 20px;
-    }
-
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--gray);
-      font-size: 7px;
-    }
-    .stat-row:last-child { border-bottom: none; }
-
-    .stat-name { color: #888; letter-spacing: 1px; }
-    .stat-score-val {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .stat-entered { color: #fff; }
-    .stat-pts {
-      font-size: 6px;
-      padding: 3px 6px;
-    }
-
-    .pts-great { background: var(--green); color: var(--dark); }
-    .pts-good { background: var(--yellow); color: var(--dark); }
-    .pts-bad { background: var(--red); color: #fff; }
-
-    .total-section {
-      padding: 24px 20px;
-      text-align: center;
-      position: relative;
-    }
-
-    .total-label {
-      font-size: 7px;
-      letter-spacing: 4px;
-      color: #666;
-      margin-bottom: 16px;
+    .mario-result .retry-btn {
+      font-family:'Press Start 2P',monospace; font-size:8px;
+      background:#06d6a0; color:#0a0a0f; border:none; padding:12px 16px;
+      cursor:pointer; flex:1; box-shadow:0 4px 0 #036b50;
     }
 
-    .total-score {
-      font-size: 52px;
-      font-weight: bold;
-      text-shadow: 4px 4px 0 currentColor;
-      display: block;
-      margin-bottom: 4px;
+    /* ══ RESULT — HOCA ══ */
+    .hoca-result .result-box {
+      background:#faf6ed; position:relative;
+      padding: 28px 28px 24px 68px;
+      border:1px solid #bbb; box-shadow:3px 3px 12px rgba(0,0,0,0.25);
+      background-image:
+        linear-gradient(#faf6ed 24px, #c8d8f0 24px, #c8d8f0 26px, #faf6ed 26px),
+        linear-gradient(to right, transparent 60px, #e8a0a0 60px, #e8a0a0 62px, transparent 62px);
+      background-size: 100% 28px, 100% 100%;
     }
-    .total-score-sub { font-size: 8px; color: #555; }
+    .hoca-result .result-box::before {
+      content:''; position:absolute; left:20px; top:0; bottom:0; width:24px;
+      background: repeating-linear-gradient(
+        to bottom,transparent 0,transparent 20px,
+        #d0c8b0 20px,#d0c8b0 22px,transparent 22px,transparent 48px
+      );
+    }
+    .hoca-result .rh-grade {
+      font-family:'Caveat',cursive; font-weight:700;
+      font-size:96px; color:var(--rc); text-align:center; line-height:1; display:block;
+    }
+    .hoca-result .rh-underline { width:60%; height:3px; background:var(--rc); margin:0 auto 8px; }
+    .hoca-result .rh-comment { font-family:'Caveat',cursive; font-size:18px; color:#1a2a4a; text-align:center; margin-bottom:16px; }
+    .hoca-result .stat-row {
+      display:flex; justify-content:space-between; align-items:baseline;
+      padding:6px 0; border-bottom:1px solid rgba(200,216,240,0.8);
+      font-family:'Caveat',cursive;
+    }
+    .hoca-result .stat-row:last-child { border-bottom:none; }
+    .hoca-result .sname { font-size:16px; color:#1a2a4a; }
+    .hoca-result .sright { display:flex; align-items:center; gap:8px; }
+    .hoca-result .sval { font-size:14px; color:#555; }
+    .hoca-result .spts { font-size:14px; font-weight:700; }
+    .hoca-result .pts-great { color:#27ae60; }
+    .hoca-result .pts-good  { color:#f39c12; }
+    .hoca-result .pts-bad   { color:#c0392b; }
+    .hoca-result .total-sec { margin-top:16px; padding-top:12px; border-top:2px solid var(--rc); }
+    .hoca-result .tlabel { font-family:'Caveat',cursive; font-size:14px; color:#888; margin-bottom:6px; }
+    .hoca-result .score-bar-wrap { background:#ddd; height:10px; margin:8px 0; border-radius:2px; }
+    .hoca-result .score-bar-fill { height:100%; transition:width 1s ease; background:var(--rc); border-radius:2px; width:0; }
+    .hoca-result .tscore { font-family:'Caveat',cursive; font-size:26px; font-weight:700; color:var(--rc); }
+    .hoca-result .tsub { font-family:'Caveat',cursive; font-size:14px; color:#888; }
+    .hoca-result .result-footer { margin-top:16px; display:flex; gap:10px; }
+    .hoca-result .back-btn {
+      font-family:'Caveat',cursive; font-size:16px;
+      background:transparent; border:1px solid #bbb; color:#888; padding:8px 14px; cursor:pointer;
+    }
+    .hoca-result .retry-btn {
+      font-family:'Caveat',cursive; font-size:20px; font-weight:700;
+      background:#c0392b; color:#fff; border:none; padding:10px 16px; cursor:pointer; flex:1;
+    }
 
-    /* Score bar */
-    .score-bar-wrap {
-      margin: 20px 0;
-      background: var(--gray);
-      height: 12px;
-      position: relative;
+    /* ══ RESULT — VINTAGE ══ */
+    .vintage-result .result-box {
+      background:#f2e8d0; padding:32px 28px 24px; position:relative;
+      border:6px double #8b6840;
+      box-shadow: 0 0 0 2px #8b6840, inset 0 0 60px rgba(139,104,64,0.15);
     }
-    .score-bar-fill {
-      height: 100%;
-      transition: width 1s ease;
-      position: relative;
+    .vintage-result .result-box::before {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(ellipse at 0% 0%,rgba(139,100,50,0.12) 0%,transparent 50%),
+        radial-gradient(ellipse at 100% 100%,rgba(100,70,30,0.15) 0%,transparent 50%);
     }
-    .score-bar-fill::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: -3px;
-      bottom: -3px;
-      width: 4px;
-      background: #fff;
+    .vintage-result .rv-banner { text-align:center; padding-bottom:16px; border-bottom:2px solid #8b6840; margin-bottom:16px; }
+    .vintage-result .rv-stamp {
+      font-family:'UnifrakturMaguntia',cursive; font-size:48px; color:var(--rc);
+      border:4px solid var(--rc); padding:6px 20px; display:inline-block;
+      transform:rotate(-3deg); margin-bottom:8px;
+      box-shadow:inset 0 0 8px rgba(0,0,0,0.1);
     }
-
-    .result-footer {
-      padding: 16px 20px 24px;
-      display: flex;
-      gap: 12px;
+    .vintage-result .rv-sub {
+      font-family:'Playfair Display',serif; font-size:11px; font-style:italic;
+      color:#8b6840; letter-spacing:3px; text-transform:uppercase;
     }
-
-    /* Pixel corners decoration */
-    .pixel-corner {
-      position: absolute;
-      width: 8px;
-      height: 8px;
+    .vintage-result .stat-row {
+      display:flex; justify-content:space-between; align-items:baseline;
+      padding:7px 0; border-bottom:1px solid #c8b080; font-family:'Playfair Display',serif;
     }
-    .pixel-corner.tl { top: -4px; left: -4px; }
-    .pixel-corner.tr { top: -4px; right: -4px; }
-    .pixel-corner.bl { bottom: -4px; left: -4px; }
-    .pixel-corner.br { bottom: -4px; right: -4px; }
-
-    /* Flicker animation for wasted */
-    @keyframes flicker {
-      0%, 95%, 100% { opacity: 1; }
-      96% { opacity: 0.4; }
-      98% { opacity: 0.8; }
+    .vintage-result .stat-row:last-child { border-bottom:none; }
+    .vintage-result .sname { font-size:12px; font-style:italic; color:#2c1a00; }
+    .vintage-result .sright { display:flex; align-items:center; gap:10px; }
+    .vintage-result .sval { font-size:12px; color:#5c3d10; }
+    .vintage-result .spts { font-family:'UnifrakturMaguntia',cursive; font-size:16px; }
+    .vintage-result .pts-great { color:#2d6a2d; }
+    .vintage-result .pts-good  { color:#8b5e00; }
+    .vintage-result .pts-bad   { color:#8b1a00; }
+    .vintage-result .total-sec { margin-top:16px; padding-top:14px; border-top:2px solid #8b6840; text-align:center; }
+    .vintage-result .tlabel {
+      font-family:'Playfair Display',serif; font-size:10px; font-style:italic;
+      letter-spacing:4px; color:#8b6840; margin-bottom:10px; text-transform:uppercase;
     }
-    .flicker { animation: flicker 3s infinite; }
-
-    .back-btn {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 7px;
-      background: transparent;
-      border: 2px solid var(--gray);
-      color: #666;
-      padding: 10px 14px;
-      cursor: pointer;
-      letter-spacing: 1px;
+    .vintage-result .score-bar-wrap { background:#d4c09a; height:10px; margin:10px 0; border:1px solid #8b6840; }
+    .vintage-result .score-bar-fill { height:100%; transition:width 1s ease; background:var(--rc); width:0; }
+    .vintage-result .tscore { font-family:'UnifrakturMaguntia',cursive; font-size:34px; color:var(--rc); }
+    .vintage-result .tsub { font-family:'Playfair Display',serif; font-size:11px; font-style:italic; color:#8b6840; }
+    .vintage-result .result-footer { margin-top:16px; display:flex; gap:10px; }
+    .vintage-result .back-btn {
+      font-family:'Playfair Display',serif; font-style:italic; font-size:13px;
+      background:transparent; border:1px solid #8b6840; color:#8b6840; padding:8px 14px; cursor:pointer;
     }
-    .back-btn:hover { border-color: #888; color: #888; }
-
-    /* Blink cursor effect */
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
+    .vintage-result .retry-btn {
+      font-family:'UnifrakturMaguntia',cursive; font-size:20px;
+      background:#2c1a00; color:#f2e8d0; border:2px solid #8b6840; padding:10px 16px; cursor:pointer; flex:1;
     }
-    .blink { animation: blink 1s infinite; }
   </style>
 </head>
-<body>
+<body class="theme-neutral">
 
-<!-- ── SCREEN 1: INTRO ── -->
+<!-- ── INTRO ── -->
 <div class="screen active" id="screen-intro">
   <div class="intro-box">
     <span class="pixel-icon">🎮</span>
-    <div class="game-title">WASTED<br>STATS</div>
-    <div class="game-subtitle">GÜNLÜKSİSTEM v1.0</div>
+    <div class="intro-title">WASTED<br>STATS</div>
+    <div class="intro-sub">GÜNLÜKSİSTEM v1.0</div>
     <div class="mode-label">— MOD SEÇ —</div>
     <div class="mode-buttons">
-      <button class="btn btn-mario" onclick="selectMode('mario')">
-        🍄 Ben Bir Mario'yum!
-      </button>
-      <button class="btn btn-hoca" onclick="selectMode('hoca')">
-        📝 Notumu Ver Hocam!
-      </button>
+      <button class="btn-intro mario-btn"   onclick="selectMode('mario')">🍄 Ben Bir Mario'yum!</button>
+      <button class="btn-intro hoca-btn"    onclick="selectMode('hoca')">📝 Notumu Ver Hocam!</button>
+      <button class="btn-intro vintage-btn" onclick="selectMode('vintage')">📜 Devrimin Evrakı</button>
     </div>
   </div>
 </div>
 
-<!-- ── SCREEN 2: STATS FORM ── -->
+<!-- ── FORM ── -->
 <div class="screen" id="screen-form">
-  <div class="form-box">
-    <div class="form-header">
-      <div class="mode-tag" id="form-mode-tag">MARIO MODU</div>
-      <h2>GÜNÜN İSTATİSTİKLERİ</h2>
-    </div>
-
-    <!-- Ekran Süresi -->
-    <div class="stat-item">
-      <div class="stat-label">
-        <span>📱 EKRAN SÜRESİ</span>
-        <span class="stat-range">0 – 16 saat</span>
-      </div>
-      <div class="stat-input-wrap">
-        <input type="range" id="ekran" min="0" max="16" value="4"
-          oninput="updateSlider(this, 'ekran-val', 'saat')">
-        <div>
-          <div class="stat-value" id="ekran-val">4</div>
-          <div class="stat-unit">saat</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Adım Sayısı -->
-    <div class="stat-item">
-      <div class="stat-label">
-        <span>👟 ADIM SAYISI</span>
-        <span class="stat-range">0 – 20.000</span>
-      </div>
-      <div class="stat-input-wrap">
-        <input type="range" id="adim" min="0" max="20000" step="500" value="3000"
-          oninput="updateSlider(this, 'adim-val', 'adım')">
-        <div>
-          <div class="stat-value" id="adim-val">3000</div>
-          <div class="stat-unit">adım</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Yanlış Karar -->
-    <div class="stat-item">
-      <div class="stat-label">
-        <span>🤦 YANLIŞ KARAR</span>
-        <span class="stat-range">0 – 10</span>
-      </div>
-      <div class="stat-input-wrap">
-        <input type="range" id="karar" min="0" max="10" value="3"
-          oninput="updateSlider(this, 'karar-val', 'adet')">
-        <div>
-          <div class="stat-value" id="karar-val">3</div>
-          <div class="stat-unit">adet</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Uyku -->
-    <div class="stat-item">
-      <div class="stat-label">
-        <span>😴 UYKU SÜRESİ</span>
-        <span class="stat-range">0 – 12 saat</span>
-      </div>
-      <div class="stat-input-wrap">
-        <input type="range" id="uyku" min="0" max="12" value="6"
-          oninput="updateSlider(this, 'uyku-val', 'saat')">
-        <div>
-          <div class="stat-value" id="uyku-val">6</div>
-          <div class="stat-unit">saat</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Su -->
-    <div class="stat-item">
-      <div class="stat-label">
-        <span>💧 SU İÇME</span>
-        <span class="stat-range">0 – 10 bardak</span>
-      </div>
-      <div class="stat-input-wrap">
-        <input type="range" id="su" min="0" max="10" value="3"
-          oninput="updateSlider(this, 'su-val', 'bardak')">
-        <div>
-          <div class="stat-value" id="su-val">3</div>
-          <div class="stat-unit">bardak</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Ertelenen İş -->
-    <div class="stat-item">
-      <div class="stat-label">
-        <span>📌 ERTELENEN İŞ</span>
-        <span class="stat-range">0 – 10</span>
-      </div>
-      <div class="stat-input-wrap">
-        <input type="range" id="erteleme" min="0" max="10" value="2"
-          oninput="updateSlider(this, 'erteleme-val', 'adet')">
-        <div>
-          <div class="stat-value" id="erteleme-val">2</div>
-          <div class="stat-unit">adet</div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="divider">
-    <button class="btn btn-submit" onclick="calculate()">
-      ▶ HESAPLA
-    </button>
-  </div>
+  <div class="mode-wrap" id="form-wrap"></div>
 </div>
 
-<!-- ── SCREEN 3: RESULT ── -->
+<!-- ── RESULT ── -->
 <div class="screen" id="screen-result">
-  <div class="result-box">
-
-    <div class="result-header" id="result-header">
-      <!-- filled by JS -->
-    </div>
-
-    <div class="stats-list" id="stats-list">
-      <!-- filled by JS -->
-    </div>
-
-    <div class="total-section">
-      <div class="total-label">— GENEL SKOR —</div>
-      <div class="score-bar-wrap">
-        <div class="score-bar-fill" id="score-bar"></div>
-      </div>
-      <span class="total-score flicker" id="total-score"></span>
-      <div class="total-score-sub" id="total-score-sub"></div>
-    </div>
-
-    <div class="result-footer">
-      <button class="back-btn" onclick="goBack()">◀ GERİ</button>
-      <button class="btn btn-submit" style="font-size:8px;" onclick="goIntro()">
-        🔄 YENİDEN OYNA
-      </button>
-    </div>
-
-  </div>
+  <div class="mode-wrap" id="result-wrap"></div>
 </div>
 
 <script>
-  let currentMode = 'mario';
+let currentMode = 'mario';
 
-  const STATS = {
-    ekran: {
-      label: '📱 Ekran Süresi',
-      unit: 'saat',
-      score: (v) => v <= 1 ? 100 : v <= 4 ? 75 : v <= 8 ? 40 : 10
-    },
-    adim: {
-      label: '👟 Adım Sayısı',
-      unit: 'adım',
-      score: (v) => v >= 10000 ? 100 : v >= 5000 ? 70 : v >= 2000 ? 40 : 10
-    },
-    karar: {
-      label: '🤦 Yanlış Karar',
-      unit: 'adet',
-      score: (v) => v === 0 ? 100 : v <= 2 ? 80 : v <= 5 ? 50 : v <= 8 ? 20 : 5
-    },
-    uyku: {
-      label: '😴 Uyku Süresi',
-      unit: 'saat',
-      score: (v) => (v >= 7 && v <= 8) ? 100 : (v >= 6 && v < 7) || (v > 8 && v <= 9) ? 80 : (v >= 5 && v < 6) || (v > 9) ? 50 : 20
-    },
-    su: {
-      label: '💧 Su İçme',
-      unit: 'bardak',
-      score: (v) => v >= 8 ? 100 : v >= 6 ? 80 : v >= 4 ? 60 : v >= 2 ? 40 : 10
-    },
-    erteleme: {
-      label: '📌 Ertelenen İş',
-      unit: 'adet',
-      score: (v) => v === 0 ? 100 : v <= 2 ? 80 : v <= 5 ? 50 : v <= 8 ? 20 : 5
-    }
-  };
+const STATS = [
+  { key:'ekran',    emoji:'📱', label:'Ekran Süresi',  unit:'saat',  min:0, max:16,    step:1,   score: v => v<=1?100:v<=4?75:v<=8?40:10 },
+  { key:'adim',     emoji:'👟', label:'Adım Sayısı',   unit:'adım',  min:0, max:20000, step:500, score: v => v>=10000?100:v>=5000?70:v>=2000?40:10 },
+  { key:'karar',    emoji:'🤦', label:'Yanlış Karar',  unit:'adet',  min:0, max:10,    step:1,   score: v => v===0?100:v<=2?80:v<=5?50:v<=8?20:5 },
+  { key:'uyku',     emoji:'😴', label:'Uyku Süresi',   unit:'saat',  min:0, max:12,    step:1,   score: v => (v>=7&&v<=8)?100:(v>=6&&v<7)||(v>8&&v<=9)?80:(v>=5&&v<6)||v>9?50:20 },
+  { key:'su',       emoji:'💧', label:'Su İçme',       unit:'bardak',min:0, max:10,    step:1,   score: v => v>=8?100:v>=6?80:v>=4?60:v>=2?40:10 },
+  { key:'erteleme', emoji:'📌', label:'Ertelenen İş',  unit:'adet',  min:0, max:10,    step:1,   score: v => v===0?100:v<=2?80:v<=5?50:v<=8?20:5 },
+];
 
-  const MARIO_RESULTS = [
-    { max: 30,  title: 'WASTED',       sub: 'YENİDEN DENE',      color: '#e63946', bg: 'rgba(230,57,70,0.08)' },
-    { max: 50,  title: '1 CAN\nKALDI', sub: 'DİKKATLİ OL',       color: '#ff7b00', bg: 'rgba(255,123,0,0.08)' },
-    { max: 70,  title: 'LEVEL\nCLEAR', sub: 'FENA DEĞİL',        color: '#ffd60a', bg: 'rgba(255,214,10,0.08)' },
-    { max: 101, title: 'PERFECT!',     sub: '✨ MÜKEMMEL GÜN',   color: '#06d6a0', bg: 'rgba(6,214,160,0.08)' },
-  ];
+const DEFAULTS = { ekran:4, adim:3000, karar:3, uyku:6, su:3, erteleme:2 };
 
-  const HOCA_RESULTS = [
-    { max: 30,  title: 'F',  sub: 'Başarısız',         color: '#e63946', bg: 'rgba(230,57,70,0.08)' },
-    { max: 45,  title: 'D',  sub: 'Geçer Not Altı',    color: '#ff7b00', bg: 'rgba(255,123,0,0.08)' },
-    { max: 60,  title: 'C',  sub: 'Geçer',             color: '#ffd60a', bg: 'rgba(255,214,10,0.08)' },
-    { max: 75,  title: 'B',  sub: 'İyi',               color: '#4cc9f0', bg: 'rgba(76,201,240,0.08)' },
-    { max: 90,  title: 'A',  sub: 'Çok İyi',           color: '#06d6a0', bg: 'rgba(6,214,160,0.08)' },
-    { max: 101, title: 'A+', sub: '⭐ Mükemmel',       color: '#06d6a0', bg: 'rgba(6,214,160,0.12)' },
-  ];
+const MARIO_RES = [
+  { max:35,  title:'WASTED',       sub:'YENİDEN DENE',  color:'#e63946', bg:'rgba(230,57,70,0.08)' },
+  { max:55,  title:'1 CAN\nKALDI', sub:'DİKKATLİ OL',  color:'#ff7b00', bg:'rgba(255,123,0,0.08)' },
+  { max:75,  title:'LEVEL\nCLEAR', sub:'FENA DEĞİL',   color:'#ffd60a', bg:'rgba(255,214,10,0.08)' },
+  { max:101, title:'PERFECT!',     sub:'✨ MÜKEMMEL',   color:'#06d6a0', bg:'rgba(6,214,160,0.08)' },
+];
+const HOCA_RES = [
+  { max:35,  grade:'F',  comment:'Kalan var mı?',      color:'#c0392b' },
+  { max:50,  grade:'D',  comment:'Geçer not altı…',    color:'#e67e22' },
+  { max:65,  grade:'C',  comment:'İdare eder.',         color:'#f39c12' },
+  { max:80,  grade:'B',  comment:'Beklediğimden iyi.', color:'#2980b9' },
+  { max:90,  grade:'A',  comment:'Aferin!',             color:'#27ae60' },
+  { max:101, grade:'A+', comment:'Peki ya yarın?',      color:'#1a8a50' },
+];
+const VINTAGE_RES = [
+  { max:35,  stamp:'Mahkum',   sub:'Tarihin Kara Sayfası',   color:'#8b1a00' },
+  { max:55,  stamp:'Düşkün',   sub:'İsyan Günlüğü',         color:'#7a4500' },
+  { max:75,  stamp:'Vasıflı',  sub:'Orta Sınıf Vakanüvisi', color:'#5c3d00' },
+  { max:101, stamp:'Kahraman', sub:'Vatanın Öncü Neferi',   color:'#2d5a1a' },
+];
 
-  function selectMode(mode) {
-    currentMode = mode;
-    const formEl = document.getElementById('screen-form');
-    const tag = document.getElementById('form-mode-tag');
+const BODY_THEMES = { mario:'theme-mario', hoca:'theme-hoca', vintage:'theme-vintage' };
 
-    formEl.className = `screen active ${mode}-mode`;
-    tag.textContent = mode === 'mario' ? '🍄 MARIO MODU' : '📝 HOCA MODU';
+function selectMode(mode) {
+  currentMode = mode;
+  document.body.className = BODY_THEMES[mode];
+  renderForm();
+  showScreen('screen-form');
+}
 
-    showScreen('screen-form');
-  }
+function renderForm() {
+  const wrap = document.getElementById('form-wrap');
+  wrap.className = 'mode-wrap ' + currentMode + '-wrap';
 
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById(id);
-    el.classList.add('active');
-  }
+  const cfg = {
+    mario:   { tag:'🍄 MARIO MODU',      title:'GÜNÜN İSTATİSTİKLERİ', submit:'▶ HESAPLA',   extra:'' },
+    hoca:    { tag:'Tarih: ___________', title:'Günlük Değerlendirme', submit:'✏ Notu Aç!',  extra:'' },
+    vintage: { tag:'Haber Ajansı Özel',  title:'Günün Vak\'ası',        submit:'⚜ İlan Et',
+               extra:'<span class="ornament">❧ ❧ ❧</span>', deco:'<div class="deco-line"><span>✦</span></div>' },
+  }[currentMode];
 
-  function updateSlider(input, valId, unit) {
-    const v = parseInt(input.value);
-    document.getElementById(valId).textContent =
-      unit === 'adım' ? v.toLocaleString('tr') : v;
-    const pct = ((v - input.min) / (input.max - input.min)) * 100;
-    input.style.setProperty('--val', pct + '%');
-  }
-
-  function getPtsClass(pts) {
-    if (pts >= 80) return 'pts-great';
-    if (pts >= 50) return 'pts-good';
-    return 'pts-bad';
-  }
-
-  function calculate() {
-    const values = {
-      ekran:    parseInt(document.getElementById('ekran').value),
-      adim:     parseInt(document.getElementById('adim').value),
-      karar:    parseInt(document.getElementById('karar').value),
-      uyku:     parseInt(document.getElementById('uyku').value),
-      su:       parseInt(document.getElementById('su').value),
-      erteleme: parseInt(document.getElementById('erteleme').value),
-    };
-
-    let total = 0;
-    const scores = {};
-    Object.keys(STATS).forEach(key => {
-      scores[key] = STATS[key].score(values[key]);
-      total += scores[key];
-    });
-    const avg = Math.round(total / Object.keys(STATS).length);
-
-    const results = currentMode === 'mario' ? MARIO_RESULTS : HOCA_RESULTS;
-    const result = results.find(r => avg < r.max);
-
-    // Build result screen
-    const resultScreen = document.getElementById('screen-result');
-    resultScreen.className = `screen active ${currentMode === 'mario' ? 'mario' : 'hoca'}-result`;
-
-    // Header
-    document.getElementById('result-header').innerHTML = `
-      <div style="background:${result.bg}; padding: 28px 20px 20px; border-bottom: 2px solid ${result.color}33;">
-        <span class="wasted-text" style="color:${result.color};">${result.title.replace('\n','<br>')}</span>
-        <div class="result-sub" style="color:${result.color};">${result.sub}</div>
-      </div>
-    `;
-
-    // Stats list
-    let statsHtml = '';
-    Object.keys(STATS).forEach(key => {
-      const s = STATS[key];
-      const displayVal = key === 'adim'
-        ? values[key].toLocaleString('tr') + ' ' + s.unit
-        : values[key] + ' ' + s.unit;
-      statsHtml += `
-        <div class="stat-row">
-          <span class="stat-name">${s.label}</span>
-          <div class="stat-score-val">
-            <span class="stat-entered">${displayVal}</span>
-            <span class="stat-pts ${getPtsClass(scores[key])}">${scores[key]}p</span>
+  let sliders = '';
+  STATS.forEach(s => {
+    const def = DEFAULTS[s.key];
+    const pct = ((def - s.min) / (s.max - s.min) * 100).toFixed(1);
+    const displayVal = s.key === 'adim' ? def.toLocaleString('tr') : def;
+    sliders += `
+      <div class="stat-item">
+        <div class="stat-label">
+          <span>${s.emoji} ${s.label}</span>
+          <span class="stat-range">${s.min} – ${s.max}</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="s_${s.key}" min="${s.min}" max="${s.max}" step="${s.step}"
+            value="${def}" style="--pct:${pct}%"
+            oninput="updateSlider(this,'v_${s.key}','${s.key}','${s.unit}')">
+          <div>
+            <div class="stat-val" id="v_${s.key}">${displayVal}</div>
+            <div class="stat-unit">${s.unit}</div>
           </div>
-        </div>`;
-    });
-    document.getElementById('stats-list').innerHTML = statsHtml;
-
-    // Score
-    document.getElementById('total-score').textContent =
-      currentMode === 'mario' ? `${avg}/100` : result.title;
-    document.getElementById('total-score').style.color = result.color;
-    document.getElementById('total-score-sub').textContent =
-      currentMode === 'mario' ? result.sub : `${avg}/100 puan`;
-
-    // Bar
-    const bar = document.getElementById('score-bar');
-    bar.style.width = '0%';
-    bar.style.background = result.color;
-    setTimeout(() => { bar.style.width = avg + '%'; }, 100);
-
-    showScreen('screen-result');
-  }
-
-  function goBack() { showScreen('screen-form'); }
-  function goIntro() { showScreen('screen-intro'); }
-
-  // Init sliders
-  document.querySelectorAll('input[type="range"]').forEach(input => {
-    const pct = ((input.value - input.min) / (input.max - input.min)) * 100;
-    input.style.setProperty('--val', pct + '%');
+        </div>
+      </div>`;
   });
+
+  wrap.innerHTML = `<div class="form-box">
+    <div class="form-header">
+      ${cfg.extra || ''}
+      <div class="mode-tag">${cfg.tag}</div>
+      <div class="form-title">${cfg.title}</div>
+      ${cfg.deco || ''}
+    </div>
+    ${sliders}
+    <hr>
+    <button class="submit-btn" onclick="calculate()">${cfg.submit}</button>
+  </div>`;
+}
+
+function updateSlider(input, valId, key, unit) {
+  const v = parseInt(input.value);
+  document.getElementById(valId).textContent = key === 'adim' ? v.toLocaleString('tr') : v;
+  const pct = ((v - input.min) / (input.max - input.min) * 100).toFixed(1);
+  input.style.setProperty('--pct', pct + '%');
+}
+
+function ptsClass(pts) { return pts >= 75 ? 'pts-great' : pts >= 50 ? 'pts-good' : 'pts-bad'; }
+
+function calculate() {
+  const vals = {};
+  STATS.forEach(s => { vals[s.key] = parseInt(document.getElementById('s_' + s.key).value); });
+  let total = 0;
+  const scores = {};
+  STATS.forEach(s => { scores[s.key] = s.score(vals[s.key]); total += scores[s.key]; });
+  const avg = Math.round(total / STATS.length);
+
+  const wrap = document.getElementById('result-wrap');
+  wrap.className = 'mode-wrap ' + currentMode + '-result';
+
+  if (currentMode === 'mario')   renderMario(wrap, avg, scores, vals);
+  if (currentMode === 'hoca')    renderHoca(wrap, avg, scores, vals);
+  if (currentMode === 'vintage') renderVintage(wrap, avg, scores, vals);
+
+  showScreen('screen-result');
+  setTimeout(() => { const b = document.getElementById('score-bar'); if(b) b.style.width = avg + '%'; }, 120);
+}
+
+function statRows(scores, vals, mode) {
+  return STATS.map(s => {
+    const dv = s.key === 'adim' ? vals[s.key].toLocaleString('tr') + ' ' + s.unit : vals[s.key] + ' ' + s.unit;
+    const pc = ptsClass(scores[s.key]);
+    let pts = '';
+    if (mode === 'mario')   pts = `<span class="spts ${pc}">${scores[s.key]}p</span>`;
+    if (mode === 'hoca')    pts = `<span class="spts ${pc}">${scores[s.key]}p</span>`;
+    if (mode === 'vintage') pts = `<span class="spts ${pc}">${scores[s.key]}</span>`;
+    return `<div class="stat-row"><span class="sname">${s.emoji} ${s.label}</span><div class="sright"><span class="sval">${dv}</span>${pts}</div></div>`;
+  }).join('');
+}
+
+function renderMario(wrap, avg, scores, vals) {
+  const r = MARIO_RES.find(x => avg < x.max);
+  wrap.style.setProperty('--rc', r.color);
+  wrap.style.setProperty('--rbg', r.bg);
+  wrap.innerHTML = `<div class="result-box">
+    <div class="result-header">
+      <span class="wasted-text">${r.title.replace('\n','<br>')}</span>
+      <div class="result-sub">${r.sub}</div>
+    </div>
+    <div class="stats-list">${statRows(scores, vals, 'mario')}</div>
+    <div class="total-sec">
+      <div class="tlabel">— GENEL SKOR —</div>
+      <div class="score-bar-wrap"><div class="score-bar-fill" id="score-bar"></div></div>
+      <span class="tscore">${avg}/100</span>
+      <div class="tsub">${r.sub}</div>
+    </div>
+    <div class="result-footer">
+      <button class="back-btn" onclick="goBack()">◀ GERİ</button>
+      <button class="retry-btn" onclick="goIntro()">🔄 YENİDEN OYNA</button>
+    </div>
+  </div>`;
+}
+
+function renderHoca(wrap, avg, scores, vals) {
+  const r = HOCA_RES.find(x => avg < x.max);
+  wrap.style.setProperty('--rc', r.color);
+  wrap.innerHTML = `<div class="result-box">
+    <span class="rh-grade">${r.grade}</span>
+    <div class="rh-underline"></div>
+    <div class="rh-comment">${r.comment}</div>
+    ${statRows(scores, vals, 'hoca')}
+    <div class="total-sec">
+      <div class="tlabel">Genel Değerlendirme</div>
+      <div class="score-bar-wrap"><div class="score-bar-fill" id="score-bar"></div></div>
+      <span class="tscore">${avg}/100 puan</span>
+      <div class="tsub">Not: ${r.grade} — ${r.comment}</div>
+    </div>
+    <div class="result-footer">
+      <button class="back-btn" onclick="goBack()">◀ Geri</button>
+      <button class="retry-btn" onclick="goIntro()">✏ Tekrar Dene</button>
+    </div>
+  </div>`;
+}
+
+function renderVintage(wrap, avg, scores, vals) {
+  const r = VINTAGE_RES.find(x => avg < x.max);
+  wrap.style.setProperty('--rc', r.color);
+  wrap.innerHTML = `<div class="result-box">
+    <div class="rv-banner">
+      <span class="rv-stamp">${r.stamp}</span>
+      <div class="rv-sub">${r.sub}</div>
+    </div>
+    ${statRows(scores, vals, 'vintage')}
+    <div class="total-sec">
+      <div class="tlabel">— Genel Vasıf —</div>
+      <div class="score-bar-wrap"><div class="score-bar-fill" id="score-bar"></div></div>
+      <span class="tscore">${avg} / 100</span>
+      <div class="tsub">${r.stamp} — ${r.sub}</div>
+    </div>
+    <div class="result-footer">
+      <button class="back-btn" onclick="goBack()">◀ Geri</button>
+      <button class="retry-btn" onclick="goIntro()">⚜ Yeniden</button>
+    </div>
+  </div>`;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goBack()  { showScreen('screen-form'); }
+function goIntro() { document.body.className = 'theme-neutral'; showScreen('screen-intro'); }
 </script>
 </body>
 </html>
