@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WASTED STATS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --pixel: 4px;
+      --red: #e63946;
+      --yellow: #ffd60a;
+      --green: #06d6a0;
+      --blue: #4cc9f0;
+      --dark: #0a0a0f;
+      --darker: #05050a;
+      --gray: #2a2a3a;
+      --light: #e0e0f0;
+    }
+
+    body {
+      background: var(--darker);
+      color: var(--light);
+      font-family: 'Press Start 2P', monospace;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* CRT scanlines effect */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 480px;
+      animation: fadeIn 0.3s ease;
+    }
+    .screen.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── INTRO SCREEN ── */
+    .intro-box {
+      background: var(--dark);
+      border: var(--pixel) solid var(--yellow);
+      padding: 40px 24px;
+      text-align: center;
+      position: relative;
+    }
+    .intro-box::before {
+      content: '';
+      position: absolute;
+      inset: var(--pixel);
+      border: var(--pixel) solid rgba(255,214,10,0.2);
+      pointer-events: none;
+    }
+
+    .game-title {
+      font-size: 28px;
+      color: var(--yellow);
+      text-shadow: 4px 4px 0 #7a6500, 0 0 30px rgba(255,214,10,0.4);
+      line-height: 1.4;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+    .game-subtitle {
+      font-size: 8px;
+      color: #888;
+      margin-bottom: 48px;
+      letter-spacing: 3px;
+    }
+
+    .pixel-icon {
+      font-size: 48px;
+      margin-bottom: 40px;
+      display: block;
+      animation: bounce 1s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .mode-label {
+      font-size: 7px;
+      color: #666;
+      letter-spacing: 3px;
+      margin-bottom: 20px;
+    }
+
+    .mode-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 16px 12px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: transform 0.1s;
+      line-height: 1.6;
+    }
+    .btn:active { transform: translateY(3px); }
+
+    .btn-mario {
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 6px 0 #8b0000, 0 0 20px rgba(230,57,70,0.3);
+    }
+    .btn-mario:active { box-shadow: 0 3px 0 #8b0000; }
+
+    .btn-hoca {
+      background: var(--blue);
+      color: var(--dark);
+      box-shadow: 0 6px 0 #1a6b8a, 0 0 20px rgba(76,201,240,0.3);
+    }
+    .btn-hoca:active { box-shadow: 0 3px 0 #1a6b8a; }
+
+    .btn-secondary {
+      background: var(--gray);
+      color: var(--light);
+      box-shadow: 0 6px 0 #111;
+      font-size: 9px;
+      padding: 14px 12px;
+    }
+    .btn-secondary:active { box-shadow: 0 3px 0 #111; }
+
+    .btn-submit {
+      background: var(--green);
+      color: var(--dark);
+      box-shadow: 0 6px 0 #036b50;
+      font-size: 11px;
+      padding: 18px;
+      width: 100%;
+    }
+    .btn-submit:active { box-shadow: 0 3px 0 #036b50; }
+
+    /* ── STATS FORM ── */
+    .form-box {
+      background: var(--dark);
+      border: var(--pixel) solid;
+      padding: 28px 20px;
+    }
+    .mario-mode .form-box { border-color: var(--red); }
+    .hoca-mode .form-box { border-color: var(--blue); }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .form-header .mode-tag {
+      font-size: 7px;
+      letter-spacing: 4px;
+      margin-bottom: 10px;
+    }
+    .mario-mode .mode-tag { color: var(--red); }
+    .hoca-mode .mode-tag { color: var(--blue); }
+
+    .form-header h2 {
+      font-size: 13px;
+      color: var(--light);
+    }
+
+    .stat-item {
+      margin-bottom: 24px;
+    }
+    .stat-label {
+      font-size: 7px;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mario-mode .stat-label { color: var(--yellow); }
+    .hoca-mode .stat-label { color: var(--blue); }
+
+    .stat-range {
+      font-size: 6px;
+      color: #555;
+    }
+
+    .stat-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 8px;
+      background: var(--gray);
+      outline: none;
+      border-radius: 0;
+    }
+    .mario-mode input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--red);
+      cursor: pointer;
+      border: 3px solid #fff;
+      box-shadow: 2px 2px 0 #8b0000;
+    }
+    .hoca-mode input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--blue);
+      cursor: pointer;
+      border: 3px solid #fff;
+      box-shadow: 2px 2px 0 #1a6b8a;
+    }
+    .mario-mode input[type="range"]::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, var(--red) 0%, var(--red) var(--val, 0%), var(--gray) var(--val, 0%));
+    }
+    .hoca-mode input[type="range"]::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, var(--blue) 0%, var(--blue) var(--val, 0%), var(--gray) var(--val, 0%));
+    }
+
+    .stat-value {
+      font-size: 11px;
+      min-width: 48px;
+      text-align: right;
+      color: #fff;
+    }
+    .stat-unit {
+      font-size: 6px;
+      color: #555;
+      margin-top: 3px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 2px solid var(--gray);
+      margin: 28px 0;
+    }
+
+    /* ── RESULT SCREEN ── */
+    .result-box {
+      background: var(--dark);
+      border: var(--pixel) solid;
+      overflow: hidden;
+      position: relative;
+    }
+    .mario-result .result-box { border-color: var(--red); }
+    .hoca-result .result-box { border-color: var(--blue); }
+
+    .result-header {
+      text-align: center;
+      padding: 32px 20px 24px;
+      position: relative;
+    }
+
+    /* WASTED style */
+    .wasted-text {
+      font-size: 36px;
+      letter-spacing: 4px;
+      text-shadow: 6px 6px 0 currentColor;
+      animation: wastedAnim 0.5s ease;
+      display: block;
+      margin-bottom: 8px;
+    }
+    @keyframes wastedAnim {
+      0% { transform: scale(3); opacity: 0; }
+      60% { transform: scale(0.95); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .result-sub {
+      font-size: 8px;
+      letter-spacing: 3px;
+      opacity: 0.7;
+    }
+
+    .stats-list {
+      padding: 0 20px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--gray);
+      font-size: 7px;
+    }
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-name { color: #888; letter-spacing: 1px; }
+    .stat-score-val {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stat-entered { color: #fff; }
+    .stat-pts {
+      font-size: 6px;
+      padding: 3px 6px;
+    }
+
+    .pts-great { background: var(--green); color: var(--dark); }
+    .pts-good { background: var(--yellow); color: var(--dark); }
+    .pts-bad { background: var(--red); color: #fff; }
+
+    .total-section {
+      padding: 24px 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .total-label {
+      font-size: 7px;
+      letter-spacing: 4px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+
+    .total-score {
+      font-size: 52px;
+      font-weight: bold;
+      text-shadow: 4px 4px 0 currentColor;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .total-score-sub { font-size: 8px; color: #555; }
+
+    /* Score bar */
+    .score-bar-wrap {
+      margin: 20px 0;
+      background: var(--gray);
+      height: 12px;
+      position: relative;
+    }
+    .score-bar-fill {
+      height: 100%;
+      transition: width 1s ease;
+      position: relative;
+    }
+    .score-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: -3px;
+      bottom: -3px;
+      width: 4px;
+      background: #fff;
+    }
+
+    .result-footer {
+      padding: 16px 20px 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Pixel corners decoration */
+    .pixel-corner {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+    }
+    .pixel-corner.tl { top: -4px; left: -4px; }
+    .pixel-corner.tr { top: -4px; right: -4px; }
+    .pixel-corner.bl { bottom: -4px; left: -4px; }
+    .pixel-corner.br { bottom: -4px; right: -4px; }
+
+    /* Flicker animation for wasted */
+    @keyframes flicker {
+      0%, 95%, 100% { opacity: 1; }
+      96% { opacity: 0.4; }
+      98% { opacity: 0.8; }
+    }
+    .flicker { animation: flicker 3s infinite; }
+
+    .back-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      background: transparent;
+      border: 2px solid var(--gray);
+      color: #666;
+      padding: 10px 14px;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+    .back-btn:hover { border-color: #888; color: #888; }
+
+    /* Blink cursor effect */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .blink { animation: blink 1s infinite; }
+  </style>
+</head>
+<body>
+
+<!-- ── SCREEN 1: INTRO ── -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-box">
+    <span class="pixel-icon">🎮</span>
+    <div class="game-title">WASTED<br>STATS</div>
+    <div class="game-subtitle">GÜNLÜKSİSTEM v1.0</div>
+    <div class="mode-label">— MOD SEÇ —</div>
+    <div class="mode-buttons">
+      <button class="btn btn-mario" onclick="selectMode('mario')">
+        🍄 Ben Bir Mario'yum!
+      </button>
+      <button class="btn btn-hoca" onclick="selectMode('hoca')">
+        📝 Notumu Ver Hocam!
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN 2: STATS FORM ── -->
+<div class="screen" id="screen-form">
+  <div class="form-box">
+    <div class="form-header">
+      <div class="mode-tag" id="form-mode-tag">MARIO MODU</div>
+      <h2>GÜNÜN İSTATİSTİKLERİ</h2>
+    </div>
+
+    <!-- Ekran Süresi -->
+    <div class="stat-item">
+      <div class="stat-label">
+        <span>📱 EKRAN SÜRESİ</span>
+        <span class="stat-range">0 – 16 saat</span>
+      </div>
+      <div class="stat-input-wrap">
+        <input type="range" id="ekran" min="0" max="16" value="4"
+          oninput="updateSlider(this, 'ekran-val', 'saat')">
+        <div>
+          <div class="stat-value" id="ekran-val">4</div>
+          <div class="stat-unit">saat</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Adım Sayısı -->
+    <div class="stat-item">
+      <div class="stat-label">
+        <span>👟 ADIM SAYISI</span>
+        <span class="stat-range">0 – 20.000</span>
+      </div>
+      <div class="stat-input-wrap">
+        <input type="range" id="adim" min="0" max="20000" step="500" value="3000"
+          oninput="updateSlider(this, 'adim-val', 'adım')">
+        <div>
+          <div class="stat-value" id="adim-val">3000</div>
+          <div class="stat-unit">adım</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Yanlış Karar -->
+    <div class="stat-item">
+      <div class="stat-label">
+        <span>🤦 YANLIŞ KARAR</span>
+        <span class="stat-range">0 – 10</span>
+      </div>
+      <div class="stat-input-wrap">
+        <input type="range" id="karar" min="0" max="10" value="3"
+          oninput="updateSlider(this, 'karar-val', 'adet')">
+        <div>
+          <div class="stat-value" id="karar-val">3</div>
+          <div class="stat-unit">adet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Uyku -->
+    <div class="stat-item">
+      <div class="stat-label">
+        <span>😴 UYKU SÜRESİ</span>
+        <span class="stat-range">0 – 12 saat</span>
+      </div>
+      <div class="stat-input-wrap">
+        <input type="range" id="uyku" min="0" max="12" value="6"
+          oninput="updateSlider(this, 'uyku-val', 'saat')">
+        <div>
+          <div class="stat-value" id="uyku-val">6</div>
+          <div class="stat-unit">saat</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Su -->
+    <div class="stat-item">
+      <div class="stat-label">
+        <span>💧 SU İÇME</span>
+        <span class="stat-range">0 – 10 bardak</span>
+      </div>
+      <div class="stat-input-wrap">
+        <input type="range" id="su" min="0" max="10" value="3"
+          oninput="updateSlider(this, 'su-val', 'bardak')">
+        <div>
+          <div class="stat-value" id="su-val">3</div>
+          <div class="stat-unit">bardak</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ertelenen İş -->
+    <div class="stat-item">
+      <div class="stat-label">
+        <span>📌 ERTELENEN İŞ</span>
+        <span class="stat-range">0 – 10</span>
+      </div>
+      <div class="stat-input-wrap">
+        <input type="range" id="erteleme" min="0" max="10" value="2"
+          oninput="updateSlider(this, 'erteleme-val', 'adet')">
+        <div>
+          <div class="stat-value" id="erteleme-val">2</div>
+          <div class="stat-unit">adet</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <button class="btn btn-submit" onclick="calculate()">
+      ▶ HESAPLA
+    </button>
+  </div>
+</div>
+
+<!-- ── SCREEN 3: RESULT ── -->
+<div class="screen" id="screen-result">
+  <div class="result-box">
+
+    <div class="result-header" id="result-header">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="stats-list" id="stats-list">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="total-section">
+      <div class="total-label">— GENEL SKOR —</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-fill" id="score-bar"></div>
+      </div>
+      <span class="total-score flicker" id="total-score"></span>
+      <div class="total-score-sub" id="total-score-sub"></div>
+    </div>
+
+    <div class="result-footer">
+      <button class="back-btn" onclick="goBack()">◀ GERİ</button>
+      <button class="btn btn-submit" style="font-size:8px;" onclick="goIntro()">
+        🔄 YENİDEN OYNA
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let currentMode = 'mario';
+
+  const STATS = {
+    ekran: {
+      label: '📱 Ekran Süresi',
+      unit: 'saat',
+      score: (v) => v <= 1 ? 100 : v <= 4 ? 75 : v <= 8 ? 40 : 10
+    },
+    adim: {
+      label: '👟 Adım Sayısı',
+      unit: 'adım',
+      score: (v) => v >= 10000 ? 100 : v >= 5000 ? 70 : v >= 2000 ? 40 : 10
+    },
+    karar: {
+      label: '🤦 Yanlış Karar',
+      unit: 'adet',
+      score: (v) => v === 0 ? 100 : v <= 2 ? 80 : v <= 5 ? 50 : v <= 8 ? 20 : 5
+    },
+    uyku: {
+      label: '😴 Uyku Süresi',
+      unit: 'saat',
+      score: (v) => (v >= 7 && v <= 8) ? 100 : (v >= 6 && v < 7) || (v > 8 && v <= 9) ? 80 : (v >= 5 && v < 6) || (v > 9) ? 50 : 20
+    },
+    su: {
+      label: '💧 Su İçme',
+      unit: 'bardak',
+      score: (v) => v >= 8 ? 100 : v >= 6 ? 80 : v >= 4 ? 60 : v >= 2 ? 40 : 10
+    },
+    erteleme: {
+      label: '📌 Ertelenen İş',
+      unit: 'adet',
+      score: (v) => v === 0 ? 100 : v <= 2 ? 80 : v <= 5 ? 50 : v <= 8 ? 20 : 5
+    }
+  };
+
+  const MARIO_RESULTS = [
+    { max: 30,  title: 'WASTED',       sub: 'YENİDEN DENE',      color: '#e63946', bg: 'rgba(230,57,70,0.08)' },
+    { max: 50,  title: '1 CAN\nKALDI', sub: 'DİKKATLİ OL',       color: '#ff7b00', bg: 'rgba(255,123,0,0.08)' },
+    { max: 70,  title: 'LEVEL\nCLEAR', sub: 'FENA DEĞİL',        color: '#ffd60a', bg: 'rgba(255,214,10,0.08)' },
+    { max: 101, title: 'PERFECT!',     sub: '✨ MÜKEMMEL GÜN',   color: '#06d6a0', bg: 'rgba(6,214,160,0.08)' },
+  ];
+
+  const HOCA_RESULTS = [
+    { max: 30,  title: 'F',  sub: 'Başarısız',         color: '#e63946', bg: 'rgba(230,57,70,0.08)' },
+    { max: 45,  title: 'D',  sub: 'Geçer Not Altı',    color: '#ff7b00', bg: 'rgba(255,123,0,0.08)' },
+    { max: 60,  title: 'C',  sub: 'Geçer',             color: '#ffd60a', bg: 'rgba(255,214,10,0.08)' },
+    { max: 75,  title: 'B',  sub: 'İyi',               color: '#4cc9f0', bg: 'rgba(76,201,240,0.08)' },
+    { max: 90,  title: 'A',  sub: 'Çok İyi',           color: '#06d6a0', bg: 'rgba(6,214,160,0.08)' },
+    { max: 101, title: 'A+', sub: '⭐ Mükemmel',       color: '#06d6a0', bg: 'rgba(6,214,160,0.12)' },
+  ];
+
+  function selectMode(mode) {
+    currentMode = mode;
+    const formEl = document.getElementById('screen-form');
+    const tag = document.getElementById('form-mode-tag');
+
+    formEl.className = `screen active ${mode}-mode`;
+    tag.textContent = mode === 'mario' ? '🍄 MARIO MODU' : '📝 HOCA MODU';
+
+    showScreen('screen-form');
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    el.classList.add('active');
+  }
+
+  function updateSlider(input, valId, unit) {
+    const v = parseInt(input.value);
+    document.getElementById(valId).textContent =
+      unit === 'adım' ? v.toLocaleString('tr') : v;
+    const pct = ((v - input.min) / (input.max - input.min)) * 100;
+    input.style.setProperty('--val', pct + '%');
+  }
+
+  function getPtsClass(pts) {
+    if (pts >= 80) return 'pts-great';
+    if (pts >= 50) return 'pts-good';
+    return 'pts-bad';
+  }
+
+  function calculate() {
+    const values = {
+      ekran:    parseInt(document.getElementById('ekran').value),
+      adim:     parseInt(document.getElementById('adim').value),
+      karar:    parseInt(document.getElementById('karar').value),
+      uyku:     parseInt(document.getElementById('uyku').value),
+      su:       parseInt(document.getElementById('su').value),
+      erteleme: parseInt(document.getElementById('erteleme').value),
+    };
+
+    let total = 0;
+    const scores = {};
+    Object.keys(STATS).forEach(key => {
+      scores[key] = STATS[key].score(values[key]);
+      total += scores[key];
+    });
+    const avg = Math.round(total / Object.keys(STATS).length);
+
+    const results = currentMode === 'mario' ? MARIO_RESULTS : HOCA_RESULTS;
+    const result = results.find(r => avg < r.max);
+
+    // Build result screen
+    const resultScreen = document.getElementById('screen-result');
+    resultScreen.className = `screen active ${currentMode === 'mario' ? 'mario' : 'hoca'}-result`;
+
+    // Header
+    document.getElementById('result-header').innerHTML = `
+      <div style="background:${result.bg}; padding: 28px 20px 20px; border-bottom: 2px solid ${result.color}33;">
+        <span class="wasted-text" style="color:${result.color};">${result.title.replace('\n','<br>')}</span>
+        <div class="result-sub" style="color:${result.color};">${result.sub}</div>
+      </div>
+    `;
+
+    // Stats list
+    let statsHtml = '';
+    Object.keys(STATS).forEach(key => {
+      const s = STATS[key];
+      const displayVal = key === 'adim'
+        ? values[key].toLocaleString('tr') + ' ' + s.unit
+        : values[key] + ' ' + s.unit;
+      statsHtml += `
+        <div class="stat-row">
+          <span class="stat-name">${s.label}</span>
+          <div class="stat-score-val">
+            <span class="stat-entered">${displayVal}</span>
+            <span class="stat-pts ${getPtsClass(scores[key])}">${scores[key]}p</span>
+          </div>
+        </div>`;
+    });
+    document.getElementById('stats-list').innerHTML = statsHtml;
+
+    // Score
+    document.getElementById('total-score').textContent =
+      currentMode === 'mario' ? `${avg}/100` : result.title;
+    document.getElementById('total-score').style.color = result.color;
+    document.getElementById('total-score-sub').textContent =
+      currentMode === 'mario' ? result.sub : `${avg}/100 puan`;
+
+    // Bar
+    const bar = document.getElementById('score-bar');
+    bar.style.width = '0%';
+    bar.style.background = result.color;
+    setTimeout(() => { bar.style.width = avg + '%'; }, 100);
+
+    showScreen('screen-result');
+  }
+
+  function goBack() { showScreen('screen-form'); }
+  function goIntro() { showScreen('screen-intro'); }
+
+  // Init sliders
+  document.querySelectorAll('input[type="range"]').forEach(input => {
+    const pct = ((input.value - input.min) / (input.max - input.min)) * 100;
+    input.style.setProperty('--val', pct + '%');
+  });
+</script>
+</body>
+</html>
