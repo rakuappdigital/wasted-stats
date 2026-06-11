@@ -382,6 +382,45 @@
     .vintage-result .result-footer { margin-top:14px; display:flex; gap:10px; }
     .vintage-result .back-btn { font-family:'Playfair Display',serif; font-style:italic; font-size:13px; background:transparent; border:1px solid #8b6840; color:#8b6840; padding:8px 14px; cursor:pointer; }
     .vintage-result .retry-btn { font-family:'Playfair Display',serif; font-weight:700; font-size:15px; background:#2c1a00; color:#f2e8d0; border:2px solid #8b6840; padding:10px 16px; cursor:pointer; flex:1; letter-spacing:1px; }
+
+    /* ══ SHARE BUTTONS ══ */
+
+    /* Mario share */
+    .share-row { display:flex; gap:8px; padding:12px 20px 4px; }
+    .share-btn {
+      font-family:'Press Start 2P',monospace; font-size:6px;
+      flex:1; padding:10px 4px; border:none; cursor:pointer;
+      letter-spacing:0.5px; transition:transform 0.08s;
+    }
+    .share-btn:active { transform:translateY(2px); }
+    .share-wa { background:#25d366; color:#fff; box-shadow:0 4px 0 #128c4a; }
+    .share-x  { background:#000; color:#fff; box-shadow:0 4px 0 #333; }
+    .share-ig { background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; box-shadow:0 4px 0 #8b0050; }
+
+    /* Hoca share */
+    .share-row-hoca { display:flex; align-items:center; gap:8px; margin:12px 0 4px; }
+    .share-label-hoca { font-family:'Caveat',cursive; font-size:14px; color:#888; white-space:nowrap; }
+    .hoca-share-btn {
+      font-family:'Caveat',cursive; font-size:14px; font-weight:700;
+      flex:1; padding:7px 4px; border:none; cursor:pointer; border-radius:2px;
+    }
+    .hoca-wa { background:#25d366; color:#fff; }
+    .hoca-x  { background:#000; color:#fff; }
+    .hoca-ig { background:linear-gradient(135deg,#f09433,#dc2743,#bc1888); color:#fff; }
+
+    /* Vintage share */
+    .share-row-vintage { margin:14px 0 4px; text-align:center; }
+    .share-vintage-label {
+      font-family:'Playfair Display',serif; font-size:10px; font-style:italic;
+      letter-spacing:4px; color:#8b6840; margin-bottom:10px; text-transform:uppercase;
+    }
+    .share-vintage-btns { display:flex; gap:8px; }
+    .vintage-share-btn {
+      font-family:'Playfair Display',serif; font-weight:700; font-size:12px;
+      flex:1; padding:9px 4px; border:1px solid #8b6840; cursor:pointer;
+      background:#2c1a00; color:#f2e8d0; letter-spacing:0.5px;
+    }
+    .vintage-share-btn:active { transform:translateY(1px); }
   </style>
 </head>
 <body class="theme-neutral">
@@ -528,6 +567,68 @@ function updateSlider(input, valId, key) {
 
 function ptsClass(pts) { return pts >= 75 ? 'pts-great' : pts >= 50 ? 'pts-good' : 'pts-bad'; }
 
+const PAGE_URL = 'https://rakuappdigital.github.io/wasted-stats/';
+
+function buildShareText(mode, avg, result) {
+  if (mode === 'mario') {
+    const title = result.title.replace('\n', ' ');
+    return `🎮 Bugünkü skorun: ${title}!\n${avg}/100 puan aldım.\nSen kaç alırsın? ${PAGE_URL}`;
+  }
+  if (mode === 'hoca') {
+    return `📝 Bugün hocam bana ${result.grade} verdi!\n"${result.comment}"\n${avg}/100 puan. ${PAGE_URL}`;
+  }
+  return `📜 Bugün "${result.stamp}" ilan edildim!\n${result.sub} — ${avg}/100\n${PAGE_URL}`;
+}
+
+function shareWA(text) {
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareX(text) {
+  window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+}
+
+async function shareIG(text) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ text });
+      return;
+    } catch(e) {}
+  }
+  await navigator.clipboard.writeText(text);
+  const btn = document.getElementById('ig-btn');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Kopyalandı!';
+  setTimeout(() => { btn.textContent = orig; }, 2000);
+}
+
+function shareBtnsHtml(mode, avg, result) {
+  const text = buildShareText(mode, avg, result);
+  const esc = text.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+  if (mode === 'mario') return `
+    <div class="share-row">
+      <button class="share-btn share-wa"  onclick="shareWA('${esc}')">WhatsApp</button>
+      <button class="share-btn share-x"   onclick="shareX('${esc}')">𝕏</button>
+      <button class="share-btn share-ig" id="ig-btn" onclick="shareIG('${esc}')">Instagram</button>
+    </div>`;
+  if (mode === 'hoca') return `
+    <div class="share-row-hoca">
+      <span class="share-label-hoca">Paylaş:</span>
+      <button class="hoca-share-btn hoca-wa"  onclick="shareWA('${esc}')">WhatsApp</button>
+      <button class="hoca-share-btn hoca-x"   onclick="shareX('${esc}')">𝕏</button>
+      <button class="hoca-share-btn hoca-ig" id="ig-btn" onclick="shareIG('${esc}')">Instagram</button>
+    </div>`;
+  return `
+    <div class="share-row-vintage">
+      <div class="share-vintage-label">— Yaygınlaştır —</div>
+      <div class="share-vintage-btns">
+        <button class="vintage-share-btn" onclick="shareWA('${esc}')">WhatsApp</button>
+        <button class="vintage-share-btn" onclick="shareX('${esc}')">𝕏</button>
+        <button class="vintage-share-btn" id="ig-btn" onclick="shareIG('${esc}')">Instagram</button>
+      </div>
+    </div>`;
+}
+
 function calculate() {
   const vals = {};
   STATS.forEach(s => { vals[s.key] = parseInt(document.getElementById('s_' + s.key).value); });
@@ -572,6 +673,7 @@ function renderMario(wrap, avg, scores, vals) {
       <span class="tscore">${avg}/100</span>
       <div class="tsub">${r.sub}</div>
     </div>
+    ${shareBtnsHtml('mario', avg, r)}
     <div class="result-footer">
       <button class="back-btn" onclick="goBack()">◀ GERİ</button>
       <button class="retry-btn" onclick="goIntro()">🔄 YENİDEN OYNA</button>
@@ -593,6 +695,7 @@ function renderHoca(wrap, avg, scores, vals) {
       <span class="tscore">${avg}/100 puan</span>
       <div class="tsub">Not: ${r.grade} — ${r.comment}</div>
     </div>
+    ${shareBtnsHtml('hoca', avg, r)}
     <div class="result-footer">
       <button class="back-btn" onclick="goBack()">◀ Geri</button>
       <button class="retry-btn" onclick="goIntro()">✏ Tekrar Dene</button>
@@ -615,6 +718,7 @@ function renderVintage(wrap, avg, scores, vals) {
       <span class="tscore">${avg} / 100</span>
       <div class="tsub">${r.stamp} — ${r.sub}</div>
     </div>
+    ${shareBtnsHtml('vintage', avg, r)}
     <div class="result-footer">
       <button class="back-btn" onclick="goBack()">◀ Geri</button>
       <button class="retry-btn" onclick="goIntro()">Yeniden Başla</button>
